@@ -1,4 +1,4 @@
-import { TUser } from './user.js';
+import { TUser } from './user.type.js';
 
 type TComment = {
   id: string;

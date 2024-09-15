@@ -1,4 +1,4 @@
-import { TCity } from '@src/types/offer.js';
+import { TCity } from '@src/types/offer.type.js';
 
 const OFFER_TYPES = [
   'apartment',
@@ -26,4 +26,6 @@ const Cities = {
   Dusseldorf: { name: 'Dusseldorf', location: { latitude: 51.225402, longitude: 6.776314 } },
 } as const satisfies Record<string, TCity>;
 
-export { Cities, OFFER_TYPES, OFFER_GOODS };
+const cityNames = Object.keys(Cities);
+
+export { Cities, cityNames, OFFER_TYPES, OFFER_GOODS };
