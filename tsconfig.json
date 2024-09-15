@@ -25,7 +25,20 @@
     ],
     "lib": [
       "ESNext"
-    ]
+    ],
+    /* Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ],
+      "@types/*": [
+        "src/types/*"
+      ],
+      "@cli/*": [
+        "src/cli/*"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts"
