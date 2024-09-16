@@ -1,4 +1,4 @@
-import { exit } from 'process';
+import { exit } from 'node:process';
 import { TSVFileReader } from '../../shared/libs/file-reader/index.js';
 import { TUser } from '../../types/index.js';
 import { ICommand } from './command.interface.js';
