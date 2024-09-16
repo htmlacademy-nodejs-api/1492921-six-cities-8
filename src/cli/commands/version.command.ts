@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-
 import { ICommand } from './command.interface.js';
+import chalk from 'chalk';
 
 type PackageJSONConfig = {
   version: string;
@@ -39,7 +39,7 @@ export class VersionCommand implements ICommand {
   public async execute(..._parameters: string[]): Promise<void> {
     try {
       const version = this.readVersion();
-      console.info(version);
+      console.info(`Версия приложения: ${chalk.green.bold(version)}`);
     } catch (error: unknown) {
       console.error(`Failed to read version from ${this.filePath}`);
 

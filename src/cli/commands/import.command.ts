@@ -2,6 +2,7 @@ import { exit } from 'process';
 import { TSVFileReader } from '../../shared/libs/file-reader/index.js';
 import { TUser } from '../../types/index.js';
 import { ICommand } from './command.interface.js';
+import chalk from 'chalk';
 
 export class ImportCommand implements ICommand {
   public getName(): string {
@@ -20,11 +21,11 @@ export class ImportCommand implements ICommand {
       if (!(err instanceof Error)) {
         throw err;
       }
-      console.error(`Can't import Users from file: ${usersFileName}`);
-      console.error(`Details: ${err.message}`);
+      console.error(`Can't import Users from file: ${chalk.white(usersFileName)}`);
+      console.error(`Details: ${chalk.yellow(err.message)}`);
     }
     if (!offersFileName) {
-      console.info('Данные о предложениях аренды не загружены, т.к. был указан только 1 файл с пользователями');
+      console.info(`Данные о предложениях аренды ${chalk.red.bold('НЕ загружены')}, т.к. был указан только 1 файл с пользователями`);
       exit();
     }
     const offersFile = new TSVFileReader(offersFileName.trim(), users);
@@ -37,8 +38,8 @@ export class ImportCommand implements ICommand {
       if (!(err instanceof Error)) {
         throw err;
       }
-      console.error(`Can't import Offers from file: ${offersFileName}`);
-      console.error(`Details: ${err.message}`);
+      console.error(`Can't import Offers from file: ${chalk.white(offersFileName)}`);
+      console.error(`Details: ${chalk.yellow(err.message)}`);
     }
   }
 }
