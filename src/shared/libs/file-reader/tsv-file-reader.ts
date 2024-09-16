@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
-
 import { IFileReader } from './file-reader.interface.js';
-import { TOfferType, TOffer, TUser } from '@types/index.js';
 import { Guid } from 'guid-typescript';
-import { Cities, cityNames } from '@src/const/data.js';
-import { TCityName } from '@src/types/city.type.js';
+import { cityNames, Cities } from '../../../const/data.js';
+import { TCityName, TOffer, TOfferType } from '../../../types/index.js';
+import { TUser } from '../../../types/user.type.js';
+import { validateEmail } from '../../../utils/inet.js';
 
 export class TSVFileReader implements IFileReader {
   private rawData = '';
@@ -12,7 +12,7 @@ export class TSVFileReader implements IFileReader {
 
   constructor(
     private readonly filename: string,
-    private readonly users: TUser[]
+    private readonly users?: TUser[]
   ) { }
 
   private validateRawData(): void {
@@ -34,13 +34,23 @@ export class TSVFileReader implements IFileReader {
 
   private parseLineToUser(line: string): TUser {
     const emptyAvatar = 'http://localhost:5173/img/avatar.svg';
+    const items = line.split('\t');
+    if (items.length !== 5 && items.length !== 4) {
+      throw new Error('File with Users not correct (Items in line <> 5 or 4).');
+    }
     const [
       name,
       email,
       password,
       isPro,
       avatarUrl
-    ] = line.split('\t');
+    ] = items;
+    if (!validateEmail(email)) {
+      throw new Error(`File with Users not correct (email: ${email} not valid).`);
+    }
+    if ('True~False~'.includes(`${isPro}~`)) {
+      throw new Error('File with Users not correct (isPro is not boolean).');
+    }
 
     return {
       name,
@@ -59,12 +69,15 @@ export class TSVFileReader implements IFileReader {
   }
 
   private parseLineToOffer(line: string): TOffer {
+    if (!this.users) {
+      throw new Error('Users not found');
+    }
     const [
       title,
       description,
+      cityName,
       date,
       previewImage,
-      cityName,
       images,
       isPremium,
       isFavorite,
@@ -75,25 +88,26 @@ export class TSVFileReader implements IFileReader {
       price,
       goods,
       hostEmail,
-      latitude,
-      longitude
+      point
     ] = line.split('\t');
 
-    const host = this.users.find((user) => user.email.toLowerCase === hostEmail.toLowerCase);
+    const host = this.users.find((user) => user.email.toLowerCase() === hostEmail.toLowerCase());
     if (!host) {
-      throw new Error(`User with ${hostEmail} not find`);
+      throw new Error(`User with ${hostEmail} not found`);
     }
     if (!cityNames.find((name) => name === cityName)) {
-      throw new Error(`City ${cityName} not find`);
+      throw new Error(`City ${cityName} not found`);
     }
     const guid = Guid.create().toString();
+
+    const [latitude, longitude] = this.parseItemToArray(point);
 
     return {
       id: guid,
       title,
       description,
       date,
-      city: Cities[cityName as TCityName],
+      city: { ...Cities[cityName as TCityName] },
       previewImage,
       images: this.parseItemToArray(images),
       isPremium: isPremium === 'True',

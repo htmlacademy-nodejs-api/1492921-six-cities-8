@@ -11,9 +11,9 @@ export class HelpCommand implements ICommand {
         Пример:
             cli.js --<command> [--arguments]
         Команды:
-            --version:                   # выводит номер версии
-            --help:                      # печатает этот текст
-            --import <file>:             # импортирует данные из *.tsv файла
+            --version:                           # выводит номер версии
+            --help:                              # печатает этот текст
+            --import <usersFile> <offersFile>:   # импортирует данные из *.tsv файлов
     `);
   }
 }

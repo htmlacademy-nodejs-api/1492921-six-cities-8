@@ -1,4 +1,4 @@
-import { Cities, cityNames } from '@src/const/data.js';
+import { Cities } from '../const/data.js';
 import { TPoint } from './offer.type.js';
 
 type TCityName = keyof typeof Cities;
