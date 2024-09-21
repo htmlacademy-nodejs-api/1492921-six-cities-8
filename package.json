@@ -14,7 +14,7 @@
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "ts": "tsc --noEmit && node --no-warnings=--no-warnings=ExperimentalWarning --loader ts-node/esm"
+    "ts": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.0",

@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { IFileReader } from './file-reader.interface.js';
 import { Guid } from 'guid-typescript';
 import { cityNames, Cities } from '../../../const/data.js';
-import { TCityName, TOffer, TOfferType } from '../../../types/index.js';
-import { TUser } from '../../../types/user.type.js';
+import { TCityName, TOffer, TOfferType } from '../../types/index.js';
+import { TUser } from '../../types/user.type.js';
 import { validateEmail } from '../../../utils/inet.js';
 
 export class TSVFileReader implements IFileReader {

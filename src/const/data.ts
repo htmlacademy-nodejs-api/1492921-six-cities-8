@@ -1,4 +1,4 @@
-import { TCity } from '../types/index.js';
+import { TCity } from '../shared/types/index.js';
 
 const OFFER_TYPES = [
   'apartment',
