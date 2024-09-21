@@ -1,20 +1,5 @@
 {
   "api": {
-    "offerTypes": [
-      "apartment",
-      "house",
-      "room",
-      "hotel"
-    ],
-    "offerGoods": [
-      "Breakfast",
-      "Air conditioning",
-      "Laptop friendly",
-      "Baby seat",
-      "Washer",
-      "Towels",
-      "Fridge"
-    ],
     "titles": [
       "The house among olive",
       "Canal View Prinsengracht",
