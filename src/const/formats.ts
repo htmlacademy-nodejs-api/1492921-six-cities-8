@@ -1,0 +1,3 @@
+const delimiterItems = ';';
+
+export {delimiterItems};

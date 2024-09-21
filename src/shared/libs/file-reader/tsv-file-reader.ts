@@ -5,10 +5,10 @@ import { cityNames, Cities } from '../../../const/data.js';
 import { TCityName, TOffer, TOfferType } from '../../types/index.js';
 import { TUser } from '../../types/user.type.js';
 import { validateEmail } from '../../../utils/inet.js';
+import { delimiterItems } from '../../../const/formats.js';
 
 export class TSVFileReader implements IFileReader {
   private rawData = '';
-  private delimiterItem = ';';
 
   constructor(
     private readonly filename: string,
@@ -22,7 +22,7 @@ export class TSVFileReader implements IFileReader {
   }
 
   private parseItemToArray<T>(item: string): T[] {
-    return item.split(this.delimiterItem) as T[];
+    return item.split(delimiterItems) as T[];
   }
 
   private parseRawDataToUsers(): TUser[] {
@@ -75,8 +75,8 @@ export class TSVFileReader implements IFileReader {
     const [
       title,
       description,
-      cityName,
       date,
+      cityName,
       previewImage,
       images,
       isPremium,
