@@ -7,4 +7,7 @@ const getRandomItems = <T>(items: T[] | readonly T[], count?: number):T[] =>
 const getRandomItem = <T>(items: T[] | readonly T[]):T =>
   items[generateRandomValue(0, items.length - 1)];
 
-export {generateRandomValue, getRandomItems, getRandomItem};
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : '';
+
+export {generateRandomValue, getRandomItems, getRandomItem, getErrorMessage};

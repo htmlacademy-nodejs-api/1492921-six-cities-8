@@ -128,11 +128,11 @@ export class TSVFileReader extends EventEmitter implements IFileReader {
 
         if (this.users) {
           const parsedOffer = this.parseLineToOffer(completeRow);
-          this.emit('line', parsedOffer);
+          this.emit('lineOffer', parsedOffer);
         }
         if (!this.users) {
           const parsedUser = this.parseLineToUser(completeRow);
-          this.emit('line', parsedUser);
+          this.emit('lineUser', parsedUser);
         }
       }
     }
