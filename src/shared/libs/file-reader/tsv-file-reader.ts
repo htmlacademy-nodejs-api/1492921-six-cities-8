@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { IFileReader } from './file-reader.interface.js';
 import { Guid } from 'guid-typescript';
 import { cityNames, Cities, EMPTY_AVATAR } from '../../../const/data.js';
@@ -6,14 +5,17 @@ import { TCityName, TOffer, TOfferType } from '../../types/index.js';
 import { TUser } from '../../types/user.type.js';
 import { validateEmail } from '../../../utils/inet.js';
 import { delimiterItems } from '../../../const/formats.js';
+import EventEmitter from 'node:events';
 
-export class TSVFileReader implements IFileReader {
+export class TSVFileReader extends EventEmitter implements IFileReader {
   private rawData = '';
 
   constructor(
     private readonly filename: string,
     private readonly users?: TUser[]
-  ) { }
+  ) {
+    super();
+  }
 
   private validateRawData(): void {
     if (!this.rawData) {
@@ -126,7 +128,7 @@ export class TSVFileReader implements IFileReader {
   }
 
   public read(): void {
-    this.rawData = readFileSync(this.filename, { encoding: 'utf-8' });
+    // Чтение файла с использованием потоков
   }
 
   public toArrayOffers(): TOffer[] {
