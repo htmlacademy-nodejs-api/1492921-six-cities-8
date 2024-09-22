@@ -15,7 +15,8 @@
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "ts": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm",
-    "mock:server": "json-server ./mocks/mock-server-data.json --port 3123 --host localhost"
+    "mock:server": "json-server ./mocks/mock-server-data.json --port 3123 --host localhost",
+    "CLI": "npm run build && chmod +x ./dist/main.cli.js"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.0",
