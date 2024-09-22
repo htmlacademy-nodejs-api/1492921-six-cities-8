@@ -1,3 +1,4 @@
+import { createReadStream } from 'node:fs';
 import { IFileReader } from './file-reader.interface.js';
 import { Guid } from 'guid-typescript';
 import { cityNames, Cities, EMPTY_AVATAR } from '../../../const/data.js';
@@ -8,7 +9,7 @@ import { delimiterItems } from '../../../const/formats.js';
 import EventEmitter from 'node:events';
 
 export class TSVFileReader extends EventEmitter implements IFileReader {
-  private rawData = '';
+  private CHUNK_SIZE = 16384; // 16KB
 
   constructor(
     private readonly filename: string,
@@ -17,21 +18,8 @@ export class TSVFileReader extends EventEmitter implements IFileReader {
     super();
   }
 
-  private validateRawData(): void {
-    if (!this.rawData) {
-      throw new Error('File was not read');
-    }
-  }
-
   private parseItemToArray<T>(item: string): T[] {
     return item.split(delimiterItems) as T[];
-  }
-
-  private parseRawDataToUsers(): TUser[] {
-    return this.rawData
-      .split('\n')
-      .filter((row) => row.trim().length > 0)
-      .map((line) => this.parseLineToUser(line));
   }
 
   private parseLineToUser(line: string): TUser {
@@ -60,13 +48,6 @@ export class TSVFileReader extends EventEmitter implements IFileReader {
       isPro: isPro === 'True',
       avatarUrl: avatarUrl ?? EMPTY_AVATAR
     };
-  }
-
-  private parseRawDataToOffers(): TOffer[] {
-    return this.rawData
-      .split('\n')
-      .filter((row) => row.trim().length > 0)
-      .map((line) => this.parseLineToOffer(line));
   }
 
   private parseLineToOffer(line: string): TOffer {
@@ -127,17 +108,34 @@ export class TSVFileReader extends EventEmitter implements IFileReader {
     };
   }
 
-  public read(): void {
-    // Чтение файла с использованием потоков
-  }
+  public async read(): Promise<void> {
+    const readStream = createReadStream(this.filename, {
+      highWaterMark: this.CHUNK_SIZE,
+      encoding: 'utf-8',
+    });
 
-  public toArrayOffers(): TOffer[] {
-    this.validateRawData();
-    return this.parseRawDataToOffers();
-  }
+    let remainingData = '';
+    let nextLinePosition = -1;
+    let importedRowCount = 0;
 
-  public toArrayUsers(): TUser[] {
-    this.validateRawData();
-    return this.parseRawDataToUsers();
+    for await (const chunk of readStream) {
+      remainingData += chunk.toString();
+
+      while ((nextLinePosition = remainingData.indexOf('\n')) >= 0) {
+        const completeRow = remainingData.slice(0, nextLinePosition + 1);
+        remainingData = remainingData.slice(++nextLinePosition);
+        importedRowCount++;
+
+        if (this.users) {
+          const parsedOffer = this.parseLineToOffer(completeRow);
+          this.emit('line', parsedOffer);
+        }
+        if (!this.users) {
+          const parsedUser = this.parseLineToUser(completeRow);
+          this.emit('line', parsedUser);
+        }
+      }
+    }
+    this.emit('end', importedRowCount);
   }
 }
