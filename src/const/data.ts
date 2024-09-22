@@ -1,5 +1,7 @@
 import { TCity } from '../shared/types/index.js';
 
+const EMPTY_AVATAR = 'http://localhost:5173/img/avatar.svg';
+
 const OFFER_TYPES = [
   'apartment',
   'house',
@@ -28,4 +30,4 @@ const Cities = {
 
 const cityNames = Object.keys(Cities);
 
-export { Cities, cityNames, OFFER_TYPES, OFFER_GOODS };
+export { EMPTY_AVATAR, Cities, cityNames, OFFER_TYPES, OFFER_GOODS };

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-
+//import pw from 'generate-pw';
 import {
   generateRandomValue,
   getRandomItem,
@@ -18,8 +18,25 @@ const adultsSettings = {min: 1, max: 10};
 
 export class TSVOfferGenerator implements IOfferGenerator {
   constructor(private readonly mockData: TMockServerData) { }
+  generate(): string {
+    throw new Error('Method not implemented.');
+  }
 
-  public generate(): string {
+  public generateUsers(): string {
+    const usersCount = this.mockData.emails.length;
+    const emails = getRandomItems(this.mockData.emails, usersCount);
+    const users = getRandomItems(this.mockData.users, usersCount);
+    const avatars = getRandomItems(this.mockData.avatars, usersCount);
+    return users.map((user, index) => [
+      user,
+      emails[index],
+      '12345678', //pw.generatePassword({ length: 8, numbers: true }),
+      getRandomItem(['false', 'true']),
+      avatars[index]
+    ].join('\t')).join('\n');
+  }
+
+  public generateOffer(): string {
     const city = Cities[getRandomItem(cityNames) as TCityName];
     const latitude = (
       city.location.latitude + generateRandomValue(0, 1, 8)

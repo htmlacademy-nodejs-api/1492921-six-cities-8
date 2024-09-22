@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { IFileReader } from './file-reader.interface.js';
 import { Guid } from 'guid-typescript';
-import { cityNames, Cities } from '../../../const/data.js';
+import { cityNames, Cities, EMPTY_AVATAR } from '../../../const/data.js';
 import { TCityName, TOffer, TOfferType } from '../../types/index.js';
 import { TUser } from '../../types/user.type.js';
 import { validateEmail } from '../../../utils/inet.js';
@@ -33,7 +33,6 @@ export class TSVFileReader implements IFileReader {
   }
 
   private parseLineToUser(line: string): TUser {
-    const emptyAvatar = 'http://localhost:5173/img/avatar.svg';
     const items = line.split('\t');
     if (items.length !== 5 && items.length !== 4) {
       throw new Error('File with Users not correct (Items in line <> 5 or 4).');
@@ -57,7 +56,7 @@ export class TSVFileReader implements IFileReader {
       email,
       password,
       isPro: isPro === 'True',
-      avatarUrl: avatarUrl ?? emptyAvatar
+      avatarUrl: avatarUrl ?? EMPTY_AVATAR
     };
   }
 
