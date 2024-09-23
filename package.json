@@ -27,6 +27,7 @@
     "eslint-config-htmlacademy": "9.1.1",
     "rimraf": "5.0.1",
     "ts-node": "10.9.2",
+    "tslib": "2.7.0",
     "typescript": "5.4.5"
   },
   "type": "module",

@@ -53,8 +53,8 @@ export class TSVOfferGenerator implements IOfferGenerator {
     return [
       getRandomItem(this.mockData.titles),
       getRandomItem(this.mockData.descriptions),
-      city.name,
       createdDate,
+      city.name,
       getRandomItem(this.mockData.offerImages),
       getRandomItems(this.mockData.offerImages, 6),
       isPremium,
@@ -65,7 +65,7 @@ export class TSVOfferGenerator implements IOfferGenerator {
       generateRandomValue(adultsSettings.min, adultsSettings.max).toString(),
       generateRandomValue(priceSetting.min, priceSetting.max).toString(),
       getRandomItems(OFFER_GOODS).join(delimiterItems),
-      getRandomItem(this.mockData.users),
+      getRandomItem(this.mockData.emails),
       latitude,
       longitude,
     ].join('\t');
