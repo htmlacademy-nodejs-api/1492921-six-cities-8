@@ -39,15 +39,17 @@ export abstract class TSVFileReader extends EventEmitter implements IFileReader 
       remainingData += chunk.toString();
 
       while ((nextLinePosition = remainingData.indexOf('\n')) >= 0) {
-        const completeRow = remainingData.slice(0, nextLinePosition);
+        const completeRow = remainingData.slice(0, nextLinePosition).trim();
         remainingData = remainingData.slice(++nextLinePosition);
-        if (this.parseLineToObject(completeRow)) {
-          this.importedRowCount++;
-        } else {
-          exit(1);
+        if (completeRow) {
+          if (this.parseLineToObject(completeRow)) {
+            this.importedRowCount++;
+          } else {
+            exit(1);
+          }
         }
       }
-      if (remainingData) {
+      if (remainingData.trim()) {
         if (this.parseLineToObject(remainingData)) {
           this.importedRowCount++;
         } else {

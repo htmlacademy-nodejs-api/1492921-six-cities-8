@@ -12,7 +12,7 @@ export class TSVUsersFileReader extends TSVFileReader {
   parseLineToObject(line: string): boolean {
     const items = line.split('\t');
     if (items.length !== 5 && items.length !== 4) {
-      console.error('File with Users not correct (Items in line <> 5 or 4).');
+      console.error('Файл с пользователями не корректный (в одной строке должно быть от 4 до 5 элементов).');
       return false;
     }
     const [
@@ -23,10 +23,10 @@ export class TSVUsersFileReader extends TSVFileReader {
       avatarUrl
     ] = items;
     if (!validateEmail(email)) {
-      throw new Error(`File with Users not correct (email: ${email} not valid).`);
+      throw new Error(`Файл с пользователями не корректный (email: ${email} недопустим).`);
     }
     if ('True~False~'.includes(`${isPro}~`)) {
-      console.error('File with Users not correct (isPro is not boolean).');
+      console.error('FФайл с пользователями не корректный (4-е поле isPro должно быть True или False).');
       return false;
     }
     const user = {

@@ -15,7 +15,7 @@ export class TSVOffersFileReader extends TSVFileReader {
 
   parseLineToObject(line: string): boolean {
     if (this.users.length === 0) {
-      console.error('Users not found');
+      console.error('Справочник пользователей не найден!');
       return false;
     }
     const [
@@ -39,11 +39,11 @@ export class TSVOffersFileReader extends TSVFileReader {
 
     const host = this.users.find((user) => user.email.toLowerCase() === hostEmail.toLowerCase());
     if (!host) {
-      console.error(`User with ${hostEmail} not found`);
+      console.error(`Пользователь (email: ${hostEmail}) не найден`);
       return false;
     }
     if (!cityNames.find((name) => name === cityName)) {
-      console.error(`City ${cityName} not found`);
+      console.error(`Город ${cityName} не найден`);
       return false;
     }
     const guid = Guid.create().toString();

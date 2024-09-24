@@ -84,15 +84,5 @@ export class ImportCommand implements ICommand {
     this.files.users.fileName = usersFileName;
     this.files.offers.fileName = offersFileName;
     this.importFile(this.files.users);
-
-    // const offersFile = new TSVFileReader(offersFileName.trim(), this.users);
-    // offersFile.on('line', this.onImportedOffer);
-    // offersFile.on('end', this.onCompleteImport);
-    // try {
-    //   offersFile.read();
-    // } catch (error) {
-    //   console.error(`Can't import Offers from file: ${chalk.white(offersFileName)}`);
-    //   console.error(`Details: ${chalk.yellow(getErrorMessage(error))}`);
-    // }
   }
 }

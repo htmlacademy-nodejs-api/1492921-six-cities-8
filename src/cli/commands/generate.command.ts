@@ -2,8 +2,11 @@ import got from 'got';
 import { TMockServerData } from '../../shared/types/index.js';
 import { ICommand } from './command.interface.js';
 import { TSVOfferGenerator } from '../../shared/libs/offer-generator/index.js';
-import { appendFile, truncate } from 'fs/promises';
+import { truncate } from 'fs/promises';
 import { existsSync } from 'fs';
+import { TSVFileWriter } from '../../shared/libs/file-writer/index.js';
+import { getErrorMessage } from '../../shared/helpers/index.js';
+import chalk from 'chalk';
 
 
 export class GenerateCommand implements ICommand {
@@ -23,23 +26,15 @@ export class GenerateCommand implements ICommand {
     if (existsSync(usersFileName)) {
       await truncate(usersFileName);
     }
+    const tsvUsersFileWriter = new TSVFileWriter(usersFileName);
+    await tsvUsersFileWriter.write(tsvOfferGenerator.generateUsers());
 
-    await appendFile(
-      usersFileName,
-      tsvOfferGenerator.generateUsers(),
-      { encoding: 'utf8' }
-    );
-
+    const tsvOffersFileWriter = new TSVFileWriter(offersFileName);
     if (existsSync(offersFileName)) {
       await truncate(offersFileName);
     }
-
     for (let i = 0; i < offerCount; i++) {
-      await appendFile(
-        offersFileName,
-        `${tsvOfferGenerator.generateOffer()}\n`,
-        { encoding: 'utf8' }
-      );
+      await tsvOffersFileWriter.write(tsvOfferGenerator.generateOffer());
     }
   }
 
@@ -54,14 +49,11 @@ export class GenerateCommand implements ICommand {
     try {
       await this.load(url);
       await this.write(usersFileName, offersFileName, offerCount);
-      console.info(`File ${usersFileName} was created!`);
-      console.info(`File ${offersFileName} was created!`);
+      console.info(`Файл ${usersFileName} успешно создан!`);
+      console.info(`Файл ${offersFileName} успешно создан!!`);
     } catch (error: unknown) {
-      console.error('Can\'t generate data');
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      console.error('Не удалось сгенерировать данные');
+      console.error(`Причина: ${chalk.yellow(getErrorMessage(error))}`);
     }
   }
 }

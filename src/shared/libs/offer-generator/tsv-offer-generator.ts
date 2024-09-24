@@ -15,6 +15,7 @@ const weekDays = {first: 1, last: 7};
 const ratingSetting = {min: 1, max: 5, precision: 1};
 const bedroomsSettings = {min: 1, max: 8};
 const adultsSettings = {min: 1, max: 10};
+const locationSettings = {maxOffset: 1, precision: 6};
 
 export class TSVOfferGenerator implements IOfferGenerator {
   constructor(private readonly mockData: TMockServerData) { }
@@ -39,11 +40,11 @@ export class TSVOfferGenerator implements IOfferGenerator {
   public generateOffer(): string {
     const city = Cities[getRandomItem(cityNames) as TCityName];
     const latitude = (
-      city.location.latitude + generateRandomValue(0, 1, 8)
-    ).toString();
+      city.location.latitude + generateRandomValue(0, locationSettings.maxOffset, locationSettings.precision)
+    ).toFixed(locationSettings.precision);
     const longitude = (
-      city.location.longitude + generateRandomValue(0, 1, 8)
-    ).toString();
+      city.location.longitude + generateRandomValue(0, locationSettings.maxOffset, locationSettings.precision)
+    ).toFixed(locationSettings.precision);
     const isFavorite = 'false';
     const isPremium = getRandomItem(['false', 'true']);
     const createdDate = dayjs()
@@ -66,8 +67,7 @@ export class TSVOfferGenerator implements IOfferGenerator {
       generateRandomValue(priceSetting.min, priceSetting.max).toString(),
       getRandomItems(OFFER_GOODS).join(delimiterItems),
       getRandomItem(this.mockData.emails),
-      latitude,
-      longitude,
+      [latitude, longitude].join(delimiterItems)
     ].join('\t');
   }
 }
