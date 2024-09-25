@@ -14,7 +14,9 @@
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "ts": "tsc --noEmit && node --no-warnings=--no-warnings=ExperimentalWarning --loader ts-node/esm"
+    "ts": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm",
+    "mock:server": "json-server ./mocks/mock-server-data.json --port 3123 --host localhost",
+    "CLI": "npm run build && chmod +x ./dist/main.cli.js"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.0",
@@ -25,6 +27,7 @@
     "eslint-config-htmlacademy": "9.1.1",
     "rimraf": "5.0.1",
     "ts-node": "10.9.2",
+    "tslib": "2.7.0",
     "typescript": "5.4.5"
   },
   "type": "module",
@@ -34,6 +37,10 @@
   },
   "dependencies": {
     "chalk": "5.3.0",
-    "guid-typescript": "1.0.9"
+    "dayjs": "1.11.13",
+    "generate-pw": "^1.5.11",
+    "got": "14.4.2",
+    "guid-typescript": "1.0.9",
+    "json-server": "0.17.3"
   }
 }
