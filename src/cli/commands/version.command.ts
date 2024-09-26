@@ -3,11 +3,11 @@ import { resolve } from 'node:path';
 import { ICommand } from './command.interface.js';
 import chalk from 'chalk';
 
-type PackageJSONConfig = {
+type TPackageJSONConfig = {
   version: string;
 }
 
-function isPackageJSONConfig(value: unknown): value is PackageJSONConfig {
+function isPackageJSONConfig(value: unknown): value is TPackageJSONConfig {
   return (
     typeof value === 'object' &&
     value !== null &&

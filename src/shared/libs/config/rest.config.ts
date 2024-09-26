@@ -2,10 +2,10 @@
 import { config } from 'dotenv';
 import { IConfig } from './config.interface.js';
 import { ILogger } from '../logger/index.js';
-import { configRestSchema, RestSchema } from './rest.schema.js';
+import { configRestSchema, TRestSchema } from './rest.schema.js';
 
-export class RestConfig implements IConfig<RestSchema> {
-  private readonly config: RestSchema;
+export class RestConfig implements IConfig<TRestSchema> {
+  private readonly config: TRestSchema;
 
   constructor(
    private readonly logger: ILogger
@@ -23,7 +23,7 @@ export class RestConfig implements IConfig<RestSchema> {
     this.logger.info('.env файл найден и успешно распарсен!');
   }
 
-  public get<T extends keyof RestSchema>(key: T): RestSchema[T] {
+  public get<T extends keyof TRestSchema>(key: T): TRestSchema[T] {
     return this.config[key];
   }
 }
