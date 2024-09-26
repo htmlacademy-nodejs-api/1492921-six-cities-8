@@ -1,6 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { IFileReader } from './file-reader.interface.js';
-import { delimiterItems } from '../../../const/formats.js';
+import { DELIMITER_ITEMS } from '../../../const/formats.js';
 import EventEmitter from 'node:events';
 import { exit } from 'node:process';
 
@@ -18,7 +18,7 @@ export abstract class TSVFileReader extends EventEmitter implements IFileReader 
   abstract parseLineToObject(line: string): boolean;
 
   protected parseItemToArray<T>(item: string): T[] {
-    return item.split(delimiterItems) as T[];
+    return item.split(DELIMITER_ITEMS) as T[];
   }
 
   protected endFileRead() {

@@ -8,7 +8,7 @@ import {
 import { TCityName, TMockServerData } from '../../types/index.js';
 import { IOfferGenerator } from './offer-generator.interface.js';
 import { Cities, cityNames, OFFER_GOODS, OFFER_TYPES } from '../../../const/data.js';
-import { delimiterItems } from '../../../const/formats.js';
+import { DELIMITER_ITEMS } from '../../../const/formats.js';
 
 const priceSetting = {min: 120, max: 1550};
 const weekDays = {first: 1, last: 7};
@@ -65,9 +65,9 @@ export class TSVOfferGenerator implements IOfferGenerator {
       generateRandomValue(bedroomsSettings.min, bedroomsSettings.max).toString(),
       generateRandomValue(adultsSettings.min, adultsSettings.max).toString(),
       generateRandomValue(priceSetting.min, priceSetting.max).toString(),
-      getRandomItems(OFFER_GOODS).join(delimiterItems),
+      getRandomItems(OFFER_GOODS).join(DELIMITER_ITEMS),
       getRandomItem(this.mockData.emails),
-      [latitude, longitude].join(delimiterItems)
+      [latitude, longitude].join(DELIMITER_ITEMS)
     ].join('\t');
   }
 }
