@@ -1,10 +1,10 @@
 import { ICommand } from './commands/command.interface.js';
 import { CommandParser } from './command-parser.js';
 
-type CommandCollection = Record<string, ICommand>;
+type TCommandCollection = Record<string, ICommand>;
 
 export class CLIApplication {
-  private commands: CommandCollection = {};
+  private commands: TCommandCollection = {};
 
   constructor(
     private readonly defaultCommand: string = '--help'

@@ -9,22 +9,25 @@
   ],
   "main": "main.js",
   "scripts": {
-    "start": "npm run build && node ./dist/main.js",
+    "start:dev": "npm run ts ./src/main.rest.ts | pino-pretty --colorize --translateTime SYS:standard",
     "build": "npm run clean && npm run compile",
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "ts": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123 --host localhost",
-    "CLI": "npm run build && chmod +x ./dist/main.cli.js"
+    "CLI": "npm run build && chmod +x ./dist/main.cli.js && ./dist/main.cli.js"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.0",
+    "@types/convict": "6.1.6",
+    "@types/convict-format-with-validator": "6.0.5",
     "@types/node": "20.12.7",
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/parser": "6.7.0",
     "eslint": "8.49.0",
     "eslint-config-htmlacademy": "9.1.1",
+    "pino-pretty": "11.2.2",
     "rimraf": "5.0.1",
     "ts-node": "10.9.2",
     "tslib": "2.7.0",
@@ -37,10 +40,16 @@
   },
   "dependencies": {
     "chalk": "5.3.0",
+    "convict": "6.2.4",
+    "convict-format-with-validator": "6.2.0",
     "dayjs": "1.11.13",
+    "dotenv": "16.4.5",
     "generate-pw": "^1.5.11",
     "got": "14.4.2",
     "guid-typescript": "1.0.9",
-    "json-server": "0.17.3"
+    "inversify": "^6.0.2",
+    "json-server": "0.17.3",
+    "pino": "9.4.0",
+    "reflect-metadata": "0.2.2"
   }
 }

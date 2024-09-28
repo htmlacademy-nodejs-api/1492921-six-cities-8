@@ -1,3 +1,3 @@
-const delimiterItems = ';';
+const DELIMITER_ITEMS = ';';
 
-export {delimiterItems};
+export {DELIMITER_ITEMS};
