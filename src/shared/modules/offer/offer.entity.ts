@@ -8,7 +8,7 @@ import {
 
 import { TCity, TOfferGoods, TOfferType, TPoint } from '../../types/index.js';
 import { UserEntity } from '../user/index.js';
-import { OFFER_TYPES } from '../../../const/data.js';
+import { OFFER_TYPES } from '../../../const/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface OfferEntity extends defaultClasses.Base {}

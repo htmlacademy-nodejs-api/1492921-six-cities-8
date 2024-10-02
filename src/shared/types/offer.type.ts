@@ -1,4 +1,4 @@
-import { OFFER_GOODS, OFFER_TYPES } from '../../const/data.js';
+import { OFFER_GOODS, OFFER_TYPES } from '../../const/index.js';
 import { TCity, TUser } from './index.js';
 
 type TOfferType = (typeof OFFER_TYPES)[number];
