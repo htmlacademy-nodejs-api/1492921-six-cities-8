@@ -7,8 +7,6 @@ import { CreateUserDto } from './dto/create-user.dto.js';
 import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 
-
-
 @injectable()
 export class DefaultUserService implements IUserService {
   constructor(

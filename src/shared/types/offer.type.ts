@@ -36,5 +36,6 @@ type TOffer = {
 export type {
   TPoint,
   TOfferType,
-  TOffer
+  TOffer,
+  TOfferGoods
 };
