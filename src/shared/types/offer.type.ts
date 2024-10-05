@@ -1,4 +1,4 @@
-import { OFFER_GOODS, OFFER_TYPES } from '../../const/data.js';
+import { OFFER_GOODS, OFFER_TYPES } from '../../const/index.js';
 import { TCity, TUser } from './index.js';
 
 type TOfferType = (typeof OFFER_TYPES)[number];
@@ -14,7 +14,7 @@ type TPoint = {
 // };
 
 type TOffer = {
-  id: string;
+  //id: string;
   title: string;
   description: string;
   date: string;
@@ -36,5 +36,6 @@ type TOffer = {
 export type {
   TPoint,
   TOfferType,
-  TOffer
+  TOffer,
+  TOfferGoods
 };

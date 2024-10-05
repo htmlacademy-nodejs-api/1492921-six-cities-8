@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-//import pw from 'generate-pw';
 import {
   generateRandomValue,
   getRandomItem,
@@ -7,8 +6,8 @@ import {
 } from '../../helpers/index.js';
 import { TCityName, TMockServerData } from '../../types/index.js';
 import { IOfferGenerator } from './offer-generator.interface.js';
-import { Cities, cityNames, OFFER_GOODS, OFFER_TYPES } from '../../../const/data.js';
-import { DELIMITER_ITEMS } from '../../../const/formats.js';
+import { Cities, cityNames, OFFER_GOODS, OFFER_TYPES } from '../../../const/index.js';
+import { DELIMITER_ITEMS } from '../../../const/index.js';
 
 const priceSetting = {min: 120, max: 1550};
 const weekDays = {first: 1, last: 7};
@@ -31,7 +30,6 @@ export class TSVOfferGenerator implements IOfferGenerator {
     return users.map((user, index) => [
       user,
       emails[index],
-      '12345678', //pw.generatePassword({ length: 8, numbers: true }),
       getRandomItem(['false', 'true']),
       avatars[index]
     ].join('\t')).join('\n');
