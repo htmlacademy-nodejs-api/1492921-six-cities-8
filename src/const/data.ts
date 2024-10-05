@@ -1,6 +1,6 @@
 import { TCity } from '../shared/types/index.js';
 
-const EMPTY_AVATAR = 'http://localhost:5173/img/avatar.svg';
+const EMPTY_AVATAR = 'avatar.svg';
 
 const OFFER_TYPES = [
   'apartment',

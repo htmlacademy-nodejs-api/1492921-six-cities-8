@@ -20,7 +20,6 @@ export class DefaultUserService implements IUserService {
 
     const result = await this.userModel.create(user);
     this.logger.info(`Новый пользователь создан: ${user.email}`);
-
     return result;
   }
 

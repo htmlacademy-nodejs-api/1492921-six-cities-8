@@ -1,23 +1,12 @@
-import { Guid } from 'guid-typescript';
-import { cityNames, Cities } from '../../../const/data.js';
+import { cityNames, Cities } from '../../../const/index.js';
 import { TCityName, TOfferType } from '../../types/index.js';
 import { TUser } from '../../types/user.type.js';
 import { TSVFileReader } from './tsv-file-reader.js';
 
 export class TSVOffersFileReader extends TSVFileReader {
 
-  constructor(
-    filename: string,
-    private readonly users: TUser[]
-  ) {
-    super(filename);
-  }
+  async parseLineToObject(line: string): Promise<boolean> {
 
-  parseLineToObject(line: string): boolean {
-    if (this.users.length === 0) {
-      console.error('Справочник пользователей не найден!');
-      return false;
-    }
     const [
       title,
       description,
@@ -37,20 +26,14 @@ export class TSVOffersFileReader extends TSVFileReader {
       point
     ] = line.split('\t');
 
-    const host = this.users.find((user) => user.email.toLowerCase() === hostEmail.toLowerCase());
-    if (!host) {
-      console.error(`Пользователь (email: ${hostEmail}) не найден`);
-      return false;
-    }
+    const host: TUser = {name: '', email: hostEmail, password: '', isPro: false};
     if (!cityNames.find((name) => name === cityName)) {
       console.error(`Город ${cityName} не найден`);
       return false;
     }
-    const guid = Guid.create().toString();
 
     const [latitude, longitude] = this.parseItemToArray(point);
-    const offer = {
-      id: guid,
+    const parsedOffer = {
       title,
       description,
       date,
@@ -71,7 +54,9 @@ export class TSVOffersFileReader extends TSVFileReader {
         longitude: Number(longitude)
       }
     };
-    this.emit('line', offer);
+    await new Promise((resolve) => {
+      this.emit('line', parsedOffer, resolve);
+    });
     return true;
   }
 

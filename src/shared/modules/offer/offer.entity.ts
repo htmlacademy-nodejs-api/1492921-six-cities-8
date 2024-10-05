@@ -16,7 +16,7 @@ export interface OfferEntity extends defaultClasses.Base {}
 @modelOptions({
   schemaOptions: {
     collection: 'offers',
-    timestamps: true,
+    timestamps: true
   }
 })
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -30,7 +30,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true })
   public date: Date;
 
-  @prop({ required: true })
+  @prop({ required: true})
   public city: TCity;
 
   @prop({ required: true })
@@ -67,7 +67,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
     ref: UserEntity,
     required: true,
   })
-  public userId: Ref<UserEntity>;
+  public hostId: Ref<UserEntity>;
 
   @prop({ required: true })
   public location: TPoint;

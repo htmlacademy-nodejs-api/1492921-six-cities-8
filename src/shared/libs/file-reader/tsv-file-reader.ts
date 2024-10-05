@@ -1,6 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { IFileReader } from './file-reader.interface.js';
-import { DELIMITER_ITEMS } from '../../../const/formats.js';
+import { DELIMITER_ITEMS } from '../../../const/index.js';
 import EventEmitter from 'node:events';
 import { exit } from 'node:process';
 
@@ -15,7 +15,7 @@ export abstract class TSVFileReader extends EventEmitter implements IFileReader 
     this.importedRowCount = 0;
   }
 
-  abstract parseLineToObject(line: string): boolean;
+  abstract parseLineToObject(line: string): Promise<boolean> ;
 
   protected parseItemToArray<T>(item: string): T[] {
     return item.split(DELIMITER_ITEMS) as T[];
@@ -42,7 +42,7 @@ export abstract class TSVFileReader extends EventEmitter implements IFileReader 
         const completeRow = remainingData.slice(0, nextLinePosition).trim();
         remainingData = remainingData.slice(++nextLinePosition);
         if (completeRow) {
-          if (this.parseLineToObject(completeRow)) {
+          if (await this.parseLineToObject(completeRow)) {
             this.importedRowCount++;
           } else {
             exit(1);
@@ -50,7 +50,7 @@ export abstract class TSVFileReader extends EventEmitter implements IFileReader 
         }
       }
       if (remainingData.trim()) {
-        if (this.parseLineToObject(remainingData)) {
+        if (await this.parseLineToObject(remainingData)) {
           this.importedRowCount++;
         } else {
           exit(1);

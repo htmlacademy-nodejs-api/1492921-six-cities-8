@@ -1,7 +1,7 @@
-import { TCity, TOfferGoods, TOfferType, TPoint, TUser } from '../../../types/index.js';
+import { TCity, TOfferGoods, TOfferType, TPoint } from '../../../types/index.js';
 
 export class CreateOfferDto {
-  public id: string;
+  //public id: string;
   public title: string;
   public description: string;
   public date: string;
@@ -16,6 +16,6 @@ export class CreateOfferDto {
   public maxAdults: number;
   public price: number;
   public goods: TOfferGoods[];
-  public host: TUser;
+  public hostId: string;
   public location: TPoint;
 }
