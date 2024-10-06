@@ -9,7 +9,7 @@ info:
   version: 1.0.0
 tags:
   - name: offers
-    description: Действия с предложениями аренды.
+    description: Действия с предложениями по аренде.
   - name: comments
     description: Действия с комментариями.
   - name: users
@@ -19,8 +19,8 @@ paths:
     post:
       tags:
         - users
-      summary: Регистрация пользователя
-      description: Регистрирует нового пользователя.
+      summary: Создание нового пользователя
+      description: Сервис предоставляет ресурс для создания нового пользователя.
       operationId: userRegister
 
       requestBody:
@@ -32,22 +32,22 @@ paths:
           required: true
 
       responses:
-          "201":
-            description: Пользователь зарегистрирован. Объект пользователя.
+          201:
+            description: Пользователь зарегистрирован
             content:
               application/json:
                 schema:
                   $ref: '#/components/schemas/user'
 
-          "409":
-            description: Пользователь с таким email уже существует.
+          409:
+            description: Пользователь с таким email уже существует
 
   /users/login:
     post:
       tags:
         - users
       summary: Авторизация пользователя
-      description: Авторизует пользователя на основе логина и пароля
+      description: Сервис предоставляет ресурс для аутентификации и авторизации пользователя.
       operationId: userAuth
 
       requestBody:
@@ -75,7 +75,7 @@ paths:
       tags:
         - users
       summary: Проверка состояния пользователя
-      description: Возвращает информацию по авторизованному пользователю
+      description: Сервис предоставляет ресурс для проверки состояния клиента — авторизован или нет.
       operationId: getUserAuth
 
       parameters:
@@ -107,8 +107,8 @@ paths:
     delete:
       tags:
         - users
-      summary: Завершить сеанс пользователя
-      description: Завершает сеанс работы — выход из закрытой части приложения
+      summary: Завершение сеанса пользователя
+      description: Сервис предоставляет ресурс для завершения пользовательского сеанса.
       operationId: userLogout
 
       parameters:
@@ -129,6 +129,146 @@ paths:
               schema:
                 "$ref": "#/components/schemas/tokenNotCorrect"
 
+  /offers:
+    post:
+      tags:
+        - offers
+      summary: Создание нового предложения по аренде
+      description: Сервис предоставляет ресурс для создания новых предложений.
+      operationId: offerCreate
+
+      parameters:
+        - in: header
+          name: X-Token
+          example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+          description: Токен пользователя
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: Информация для создания нового предложения по аренде.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+
+      responses:
+        201:
+          description: Предложение по аренде успешно добавлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        400:
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerError'
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+    get:
+      tags:
+        - offers
+      summary: Получение списка предложений по аренде
+      description: Сервис предоставляет список предложений по аренде (по умолчанию не больше 60).
+
+      parameters:
+        - in: header
+          name: X-Token
+          example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+          description: Токен пользователя
+          schema:
+            type: string
+        - in: query
+          name: count
+          description: Количество предложений на странице
+          schema:
+            type: integer
+            default: 60
+            minimum: 1
+
+      responses:
+        200:
+          description: Список предложений по аренде получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+
+  /offers/{offerId}:
+    parameters:
+      - in: path
+        name: offerId
+        example: 6700f39e2b06e23d165a401a
+        description: Id предложения по аренде
+        schema:
+            $ref: "#/components/schemas/offerId"
+        required: true
+
+    post:
+      tags:
+        - offers
+      summary: Редактирование предложения по аренде
+      description: Сервис предоставляет ресурс для редактирования предложения по аренде.
+      responses:
+        201:
+          description: Предложение по аренде успешно изменено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        400:
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerError'
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
+    get:
+      tags:
+        - offers
+      summary: Получение детальной информации о предложении по аренде
+      description: Сервис предоставляет ресурс для получения детальной информации об одном предложении по аренде.
+      responses:
+        201:
+          description: Получена детальная информация о предложении по аренде
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
+    delete:
+      tags:
+        - offers
+      summary: Удаление предложения по аренде
+      description: Сервис предоставляет ресурс для удаления предложений по аренде. Клиент может удалять только свои предложения.
+      responses:
+        204:
+          description: Предложение по аренде удалено
+
 components:
   schemas:
 
@@ -143,7 +283,7 @@ components:
       maxLength: 12
       example: pass-Word123
 
-    userEntity:
+    userMain:
       type: object
       properties:
         name:
@@ -161,19 +301,19 @@ components:
 
     createUser:
        allOf:
-        - $ref: '#/components/schemas/userEntity'
+        - $ref: '#/components/schemas/userMain'
         - type: object
           properties:
             password:
               $ref: '#/components/schemas/password'
     user:
       allOf:
-        - $ref: '#/components/schemas/userEntity'
         - type: object
           properties:
             id:
               type: string
               example: 6329c3d6a04ab1061c6425ea
+        - $ref: '#/components/schemas/userMain'
 
     userAuth:
       allOf:
@@ -191,6 +331,169 @@ components:
           $ref: '#/components/schemas/email'
         password:
           $ref: '#/components/schemas/password'
+
+    location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          example: 42.23432
+        longitude:
+          type: number
+          example: 23.346329
+
+    city:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Amsterdam'
+        location:
+          type: object
+          $ref: '#/components/schemas/location'
+
+    image:
+      type: string
+      example: https://16.design.htmlacademy.pro/static/hotel/1.jpg
+
+    rating:
+      type: number
+      description: Рейтинг
+      minimum: 1
+      maximum: 5
+      example: 4.3
+
+    offerId:
+      description: Уникальный идентификатор предложения аренды
+      type: string
+      example: 6700f39e2b06e23d165a401a
+      required: true
+
+    offerMain:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 100
+          example: The Joshua Tree House
+        date:
+          type: string
+          format: date-time
+          example: 2024-05-13T02:38:23.906Z
+        city:
+          $ref: '#/components/schemas/city'
+        previewImage:
+          $ref: '#/components/schemas/image'
+        isPremium:
+          type: boolean
+        type:
+          type: string
+          description: Тип жилья
+          enum: [apartment, house, room, hotel]
+        price:
+          type: number
+          minLength: 100
+          maxLength: 100000
+          example: 60000
+        location:
+          $ref: '#/components/schemas/location'
+      required:
+        - title
+        - date
+        - city
+        - previewImage
+        - isPremium
+        - type
+        - price
+        - location
+
+    offerAdditional:
+      type: object
+      properties:
+        isFavorite:
+          type: boolean
+        rating:
+          $ref: "#/components/schemas/rating"
+        commentsCount:
+          type: number
+          description: Количество комментариев
+          example: 26
+        required:
+          - isFavorite
+          - rating
+          - commentsCount
+
+    offerPreview:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/offerId'
+        - $ref: '#/components/schemas/offerMain'
+        - $ref: '#/components/schemas/offerAdditional'
+
+    offers:
+      type: array
+      items:
+        $ref: "#/components/schemas/offerPreview"
+
+    createOffer:
+      allOf:
+        - $ref: "#/components/schemas/offerMain"
+        - type: object
+          properties:
+            description:
+              type: string
+              minLength: 20
+              maxLength: 1024
+              example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
+            images:
+              type: array
+              minItems: 6
+              maxItems: 6
+              items:
+                $ref: '#/components/schemas/image'
+              example: [
+                'https://16.design.htmlacademy.pro/static/hotel/1.jpg',
+                'https://16.design.htmlacademy.pro/static/hotel/2.jpg',
+                'https://16.design.htmlacademy.pro/static/hotel/3.jpg',
+              ]
+            bedrooms:
+              type: integer
+              minLength: 1
+              maxLength: 8
+              example: 3
+            maxAdults:
+              type: integer
+              minLength: 1
+              maxLength: 10
+              example: 6
+            goods:
+              type: array
+              description: Удобства, доступные в помещении
+              items:
+                type: string
+                enum: [Breakfast, Air conditioning, Laptop friendly workspace, Baby seat, Washer, Towels, Fridge]
+              example: [Breakfast, Air conditioning, Washer]
+            host:
+              $ref: '#/components/schemas/userMain'
+          required:
+            - description
+            - images
+            - bedrooms
+            - maxAdults
+            - goods
+            - host
+
+    offer:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/offerId'
+        - $ref: '#/components/schemas/createOffer'
+        - $ref: '#/components/schemas/offerAdditional'
 
     commonError:
       type: object
@@ -236,7 +539,7 @@ components:
                   "value": "p",
                   "messages": [
                     "Длинна пароля должна быть от 6 до 12 символов"
-                ]
+                  ]
                 }
               ]
 
@@ -254,4 +557,35 @@ components:
         - type: object
           properties:
             message:
-              example: В заголовке не корректный токен.
+              example: В заголовке запроса не корректный токен.
+
+    offerNotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            message:
+              example: Предложение по аренде не найдено.
+
+    offerError:
+      allOf:
+        - $ref: '#/components/schemas/validationError'
+        - type: object
+          properties:
+            details:
+              example: [
+                {
+                  "property": "title",
+                  "value": "House",
+                  "messages": [
+                    "Название предложения должно быть не менее 10, но не более 100 символов"
+                  ]
+                },
+                {
+                  "property": "bedrooms",
+                  "value": 9,
+                  "messages": [
+                    "Количество комнат должно быть не менее 1, но не более 8"
+                  ]
+                }
+              ]
