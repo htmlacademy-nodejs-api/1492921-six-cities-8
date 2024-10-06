@@ -180,6 +180,7 @@ paths:
         - offers
       summary: Получение списка предложений по аренде
       description: Сервис предоставляет список предложений по аренде (по умолчанию не больше 60).
+      operationId: getOffers
 
       parameters:
         - in: header
@@ -219,6 +220,7 @@ paths:
         - offers
       summary: Редактирование предложения по аренде
       description: Сервис предоставляет ресурс для редактирования предложения по аренде.
+      operationId: offerEdit
 
       requestBody:
         description: Информация для редактирования предложения по аренде.
@@ -258,6 +260,8 @@ paths:
         - offers
       summary: Получение детальной информации о предложении по аренде
       description: Сервис предоставляет ресурс для получения детальной информации об одном предложении по аренде.
+      operationId: getOffer
+
       responses:
         201:
           description: Получена детальная информация о предложении по аренде
@@ -276,6 +280,8 @@ paths:
         - offers
       summary: Удаление предложения по аренде
       description: Сервис предоставляет ресурс для удаления предложений по аренде. Клиент может удалять только свои предложения.
+      operationId: offerDel
+
       responses:
         204:
           description: Предложение по аренде удалено
@@ -295,6 +301,8 @@ paths:
         - comments
       summary: Список комментариев для предложения по аренде
       description:  Сервис предоставляет ресурс для получения списка комментариев для определённого предложения.
+      operationId: getComments
+
       responses:
         200:
           description: Список комментариев для предложения по аренде получен
@@ -314,6 +322,8 @@ paths:
         - comments
       summary: Добавление комментария
       description: Сервис предоставляет ресурс для добавления комментариев к определённому предложению по аренде.
+      operationId: commentCreate
+
       parameters:
         - in: header
           name: X-Token
@@ -351,6 +361,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/offerNotFoundError'
+
+  /premium:
+    get:
+      tags:
+        - offers
+      summary: Премиальные предложения для города
+      description: Сервис предоставляет ресурс для получения списка премиальных предложений для определённого города.
+      operationId: getPremium
+
+      parameters:
+      - in: query
+        name: cityName
+        description: Название города
+        required: true
+        schema:
+          type: string
+          enum:
+            - Paris
+            - Cologne
+            - Brussels
+            - Amsterdam
+            - Hamburg
+            - Dusseldorf
+      responses:
+        200:
+          description: Список премиальных предложений получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+        404:
+          description: Указанный город не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cityNotFoundError'
 
 components:
   schemas:
@@ -720,3 +766,10 @@ components:
                 }
               ]
 
+    cityNotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            message:
+              example: Город указан неверно.
