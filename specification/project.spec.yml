@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: API сервер для учебного проекта «Шесть городов».
   description: |-
@@ -71,6 +71,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/userAuthError"
+
     get:
       tags:
         - users
@@ -119,6 +120,7 @@ paths:
           schema:
             type: string
             example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
       responses:
         204:
           description: Сеанс завершён
@@ -217,6 +219,15 @@ paths:
         - offers
       summary: Редактирование предложения по аренде
       description: Сервис предоставляет ресурс для редактирования предложения по аренде.
+
+      requestBody:
+        description: Информация для редактирования предложения по аренде.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+
       responses:
         201:
           description: Предложение по аренде успешно изменено
@@ -268,6 +279,78 @@ paths:
       responses:
         204:
           description: Предложение по аренде удалено
+
+  /comments/{offerId}:
+    parameters:
+    - in: path
+      name: offerId
+      example: 6700f39e2b06e23d165a401a
+      description: Id предложения по аренде
+      schema:
+          $ref: "#/components/schemas/offerId"
+      required: true
+
+    get:
+      tags:
+        - comments
+      summary: Список комментариев для предложения по аренде
+      description:  Сервис предоставляет ресурс для получения списка комментариев для определённого предложения.
+      responses:
+        200:
+          description: Список комментариев для предложения по аренде получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comments'
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
+
+    post:
+      tags:
+        - comments
+      summary: Добавление комментария
+      description: Сервис предоставляет ресурс для добавления комментариев к определённому предложению по аренде.
+      parameters:
+        - in: header
+          name: X-Token
+          example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+          description: Токен пользователя
+          schema:
+            type: string
+
+      requestBody:
+        description: Информация для добавления комментария.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createComment'
+        required: true
+
+      responses:
+        201:
+          description: Комментарий успешно добавлен
+        400:
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commentError'
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
 
 components:
   schemas:
@@ -367,7 +450,6 @@ components:
       description: Уникальный идентификатор предложения аренды
       type: string
       example: 6700f39e2b06e23d165a401a
-      required: true
 
     offerMain:
       type: object
@@ -419,10 +501,10 @@ components:
           type: number
           description: Количество комментариев
           example: 26
-        required:
-          - isFavorite
-          - rating
-          - commentsCount
+      required:
+        - isFavorite
+        - rating
+        - commentsCount
 
     offerPreview:
       allOf:
@@ -430,6 +512,8 @@ components:
           properties:
             id:
               $ref: '#/components/schemas/offerId'
+          required:
+            - id
         - $ref: '#/components/schemas/offerMain'
         - $ref: '#/components/schemas/offerAdditional'
 
@@ -492,8 +576,38 @@ components:
           properties:
             id:
               $ref: '#/components/schemas/offerId'
+          required:
+            - id
         - $ref: '#/components/schemas/createOffer'
         - $ref: '#/components/schemas/offerAdditional'
+
+    createComment:
+      type: object
+      properties:
+        comment:
+          type: string
+          description: Текст комментария
+          minLength: 5
+          maxLength: 1024
+        date:
+          type: string
+          format: date
+          description: Дата публикации комментария
+        rating:
+          $ref: "#/components/schemas/rating"
+
+    comment:
+      allOf:
+        - $ref: '#/components/schemas/createComment'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/user'
+
+    comments:
+      type: array
+      items:
+        $ref: '#/components/schemas/comment'
 
     commonError:
       type: object
@@ -521,7 +635,7 @@ components:
               property:
                 type: string
               value:
-                type: any
+                type: string
               messages:
                 type: array
                 items:
@@ -583,9 +697,26 @@ components:
                 },
                 {
                   "property": "bedrooms",
-                  "value": 9,
+                  "value": "9",
                   "messages": [
                     "Количество комнат должно быть не менее 1, но не более 8"
                   ]
                 }
               ]
+
+    commentError:
+      allOf:
+        - $ref: '#/components/schemas/validationError'
+        - type: object
+          properties:
+            details:
+              example: [
+                {
+                  "property": "comment",
+                  "value": "OK",
+                  "messages": [
+                    "Комментарий должен быть не менее 5, но не более 1024 символов"
+                  ]
+                }
+              ]
+
