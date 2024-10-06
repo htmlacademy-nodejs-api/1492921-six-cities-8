@@ -1,35 +1,48 @@
-import { TSVOffersFileReader, TSVUsersFileReader } from '../../shared/libs/file-reader/index.js';
-import { TOffer, TUser } from '../../shared/types/index.js';
+import {
+  TSVOffersFileReader,
+  TSVUsersFileReader,
+} from '../../shared/libs/file-reader/index.js';
+import {
+  TImportFile,
+  TImportObjects,
+  TOffer,
+  TUser,
+} from '../../shared/types/index.js';
 import { ICommand } from './command.interface.js';
 import chalk from 'chalk';
 import { getErrorMessage } from '../../shared/helpers/common.js';
 import { existsSync } from 'node:fs';
-import { TSVFileReader } from '../../shared/libs/file-reader/tsv-file-reader.js';
-import { DefaultUserService, IUserService, UserModel } from '../../shared/modules/user/index.js';
-import { DefaultOfferService, IOfferService, OfferModel } from '../../shared/modules/offer/index.js';
+import {
+  DefaultUserService,
+  IUserService,
+  UserModel,
+} from '../../shared/modules/user/index.js';
+import {
+  DefaultOfferService,
+  IOfferService,
+  OfferModel,
+} from '../../shared/modules/offer/index.js';
 import { ILogger } from '../../shared/libs/logger/index.js';
-import { IDatabaseClient, MongoDatabaseClient } from '../../shared/libs/database-client/index.js';
+import {
+  IDatabaseClient,
+  MongoDatabaseClient,
+} from '../../shared/libs/database-client/index.js';
 import { ConsoleLogger } from '../../shared/libs/logger/console.logger.js';
 import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from './command.constant.js';
 import { getMongoURI } from '../../shared/helpers/index.js';
-
-
-type TImportFile = {
-  fileName: string,
-  content: string,
-  paramNumber: number,
-  onImportedLine: (obj: TUser | TOffer, resolve: () => void) => Promise<void>,
-  getFileReader: (fileName: string) => TSVFileReader
-}
-
 export class ImportCommand implements ICommand {
-
-  private onImportedUser = async (user: TUser | TOffer, resolve: () => void) => {
+  private onImportedUser = async (
+    user: TImportObjects,
+    resolve: () => void
+  ) => {
     await this.saveUser(user as TUser);
     return resolve();
   };
 
-  private onImportedOffer = async(offer: TUser | TOffer, resolve: () => void) => {
+  private onImportedOffer = async (
+    offer: TImportObjects,
+    resolve: () => void
+  ) => {
     await this.saveOffer(offer as TOffer);
     resolve();
   };
@@ -40,15 +53,17 @@ export class ImportCommand implements ICommand {
       content: 'пользователями',
       paramNumber: 1,
       onImportedLine: this.onImportedUser,
-      getFileReader: (fileName: string) => new TSVUsersFileReader(fileName.trim())
+      getFileReader: (fileName: string) =>
+        new TSVUsersFileReader(fileName.trim()),
     },
     offers: {
       fileName: '',
       content: 'предложениями аренды',
       paramNumber: 2,
       onImportedLine: this.onImportedOffer,
-      getFileReader: (fileName: string) => new TSVOffersFileReader(fileName.trim())
-    }
+      getFileReader: (fileName: string) =>
+        new TSVOffersFileReader(fileName.trim()),
+    },
   } satisfies Record<string, TImportFile>;
 
   private userService: IUserService;
@@ -65,11 +80,14 @@ export class ImportCommand implements ICommand {
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
 
-  private async saveUser (user: TUser) {
-    await this.userService.findOrCreate({
-      ...user,
-      password: DEFAULT_USER_PASSWORD
-    }, this.salt);
+  private async saveUser(user: TUser) {
+    await this.userService.findOrCreate(
+      {
+        ...user,
+        password: DEFAULT_USER_PASSWORD,
+      },
+      this.salt
+    );
   }
 
   private async saveOffer(offer: TOffer) {
@@ -77,10 +95,12 @@ export class ImportCommand implements ICommand {
     if (host) {
       await this.offerService.create({
         ...offer,
-        hostId: host.id
+        hostId: host.id,
       });
     } else {
-      console.error(`Пользователь с email: ${offer.host.email} не найден).`);
+      throw new Error(
+        `Файл с предложениями аренды не корректный (Пользователь с email: ${offer.host.email} не найден).`
+      );
     }
   }
 
@@ -89,12 +109,16 @@ export class ImportCommand implements ICommand {
   };
 
   private checkFile(file: TImportFile): boolean {
-    if (!file.fileName){
-      console.error(`Файл с ${file.content} ${chalk.red.bold('НЕ передан')} ${file.paramNumber}-м параметром`);
+    if (!file.fileName) {
+      console.error(
+        `Файл с ${file.content} ${chalk.red.bold('НЕ передан')} ${file.paramNumber}-м параметром`
+      );
       return false;
     }
     if (!existsSync(file.fileName)) {
-      console.error(`Файл с ${file.content} (${file.fileName}) ${chalk.red.bold('НЕ найден')}`);
+      console.error(
+        `Файл с ${file.content} (${file.fileName}) ${chalk.red.bold('НЕ найден')}`
+      );
       return false;
     }
     return true;
@@ -104,25 +128,29 @@ export class ImportCommand implements ICommand {
     return '--import';
   }
 
-  public async importFile(file: TImportFile): Promise<void> {
+  public async importFile(file: TImportFile): Promise<boolean> {
     if (!this.checkFile(file)) {
-      throw new Error(`Проблемы с файлом: ${file.fileName}`);
+      return false;
     }
-
     const fileReader = file.getFileReader(file.fileName);
     fileReader.on('line', file.onImportedLine);
     fileReader.on('end', this.onCompleteImport);
 
     try {
       await fileReader.read();
+      return true;
     } catch (error) {
-      console.error(`Не удалось импортировать данные из файла: ${chalk.white(file.fileName)}`);
+      console.error(
+        `Не удалось импортировать данные из файла: ${chalk.white(file.fileName)}`
+      );
       console.error(`Причина: ${chalk.yellow(getErrorMessage(error))}`);
+      return false;
     }
   }
 
   public async execute(...parameters: string[]): Promise<void> {
-    const [usersFileName, offersFileName, login, password, host, dbname, salt] = parameters;
+    const [usersFileName, offersFileName, login, password, host, dbname, salt] =
+      parameters;
 
     this.uri = getMongoURI(login, password, host, DEFAULT_DB_PORT, dbname);
     this.salt = salt;
@@ -132,9 +160,10 @@ export class ImportCommand implements ICommand {
     await this.databaseClient.connect(this.uri);
     try {
       this.logger.info('Начинаем загрузку пользователей');
-      await this.importFile(this.files.users);
-      this.logger.info('Начинаем загрузку предложений по аренде');
-      await this.importFile(this.files.offers);
+      if (await this.importFile(this.files.users)) {
+        this.logger.info('Начинаем загрузку предложений по аренде');
+        await this.importFile(this.files.offers);
+      }
       this.databaseClient.disconnect();
     } catch {
       this.databaseClient.disconnect();

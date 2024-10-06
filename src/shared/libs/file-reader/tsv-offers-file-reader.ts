@@ -1,12 +1,16 @@
-import { cityNames, Cities } from '../../../const/index.js';
+import { cityNames, Cities, OfferFieldsInLine } from '../../../const/index.js';
 import { TCityName, TOfferType } from '../../types/index.js';
 import { TUser } from '../../types/user.type.js';
 import { TSVFileReader } from './tsv-file-reader.js';
 
 export class TSVOffersFileReader extends TSVFileReader {
-
-  async parseLineToObject(line: string): Promise<boolean> {
-
+  parseLineToObject<T>(line: string): T {
+    const items = line.split('\t');
+    if (items.length !== OfferFieldsInLine.count) {
+      throw new Error(
+        `Файл с предложениями аренды не корректный (в одной строке должно быть ${OfferFieldsInLine.count} значений, разделенных табуляцией).`
+      );
+    }
     const [
       title,
       description,
@@ -23,17 +27,23 @@ export class TSVOffersFileReader extends TSVFileReader {
       price,
       goods,
       hostEmail,
-      point
-    ] = line.split('\t');
+      point,
+    ] = items;
 
-    const host: TUser = {name: '', email: hostEmail, password: '', isPro: false};
+    const host: TUser = {
+      name: '',
+      email: hostEmail,
+      password: '',
+      isPro: false,
+    };
     if (!cityNames.find((name) => name === cityName)) {
-      console.error(`Город ${cityName} не найден`);
-      return false;
+      throw new Error(
+        `Файл с предложениями аренды не корректный (Город ${cityName} не найден`
+      );
     }
 
     const [latitude, longitude] = this.parseItemToArray(point);
-    const parsedOffer = {
+    return {
       title,
       description,
       date,
@@ -51,13 +61,8 @@ export class TSVOffersFileReader extends TSVFileReader {
       host: host,
       location: {
         latitude: Number(latitude),
-        longitude: Number(longitude)
-      }
-    };
-    await new Promise((resolve) => {
-      this.emit('line', parsedOffer, resolve);
-    });
-    return true;
+        longitude: Number(longitude),
+      },
+    } as T;
   }
-
 }
