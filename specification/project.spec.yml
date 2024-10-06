@@ -398,6 +398,115 @@ paths:
               schema:
                 $ref: '#/components/schemas/cityNotFoundError'
 
+  /favorites:
+    get:
+      tags:
+        - offers
+      summary: Список избранных предложений
+      description: Сервис предоставляет ресурс для получения предложений, добавленных в избранное.
+      operationId: getFavorites
+
+      parameters:
+        - in: header
+          name: X-Token
+          example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+          description: Токен пользователя
+          schema:
+            type: string
+          required: true
+
+      responses:
+        200:
+          description: Список избранных предложений получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+
+  /favorites/{offerId}:
+    parameters:
+      - in: header
+        name: X-Token
+        example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+        description: Токен пользователя
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: offerId
+        example: 6700f39e2b06e23d165a401a
+        description: Id предложения по аренде
+        schema:
+          $ref: "#/components/schemas/offerId"
+        required: true
+    post:
+      tags:
+        - offers
+      summary: Добавление предложения в избранное
+      description: Сервис предоставляет ресурс для добавления любого предложения в список избранных предложений.
+      operationId: favoriteAdd
+
+      responses:
+        200:
+          description: Предложение успешно добавлено в избранное.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/offer"
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
+        409:
+          description: Предложение уже в избранном
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/favoriteAddError'
+
+    delete:
+      tags:
+        - offers
+      summary: Удаление предложения из избранного
+      description: Сервис предоставляет ресурс для удаления предложения из избранного.
+      operationId: favoriteDel
+
+      responses:
+        204:
+          description: Предложение успешно удалено.
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
+        409:
+          description: Предложение не было в избранном.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/favoriteDelError'
+
 components:
   schemas:
 
@@ -773,3 +882,19 @@ components:
           properties:
             message:
               example: Город указан неверно.
+
+    favoriteAddError:
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            message:
+              example: Это предложение по аренде уже находится в избранном
+
+    favoriteDelError:
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            message:
+              example: Это предложение по аренде не находится в избранном"
