@@ -21,6 +21,26 @@ paths:
         - users
       summary: Регистрация пользователя
       description: Регистрирует нового пользователя.
+      operationId: userRegister
+
+      requestBody:
+          description: Информация для создания нового пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createUser'
+          required: true
+
+      responses:
+          "201":
+            description: Пользователь зарегистрирован. Объект пользователя.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/user'
+
+          "409":
+            description: Пользователь с таким email уже существует.
 
   /users/login:
     post:
@@ -28,12 +48,60 @@ paths:
         - users
       summary: Авторизация пользователя
       description: Авторизует пользователя на основе логина и пароля
+      operationId: userAuth
 
+      requestBody:
+        description: Информация для авторизации пользователя (email и пароль).
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/userLogin"
+        required: true
+
+      responses:
+        200:
+          description: Статус авторизации
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/userAuth"
+        400:
+          description: Ошибка тела запроса
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/userAuthError"
     get:
       tags:
         - users
       summary: Проверка состояния пользователя
       description: Возвращает информацию по авторизованному пользователю
+      operationId: getUserAuth
+
+      parameters:
+        - in: header
+          name: X-Token
+          example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+          description: Токен пользователя
+          schema:
+            type: string
+          required: true
+
+      responses:
+        200:
+          description: Статус авторизации пользователя
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/userAuth"
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - "$ref": "#/components/schemas/getUserAuthError"
+                - "$ref": "#/components/schemas/tokenNotCorrect"
 
   /users/logout:
     delete:
@@ -41,3 +109,149 @@ paths:
         - users
       summary: Завершить сеанс пользователя
       description: Завершает сеанс работы — выход из закрытой части приложения
+      operationId: userLogout
+
+      parameters:
+        - in: header
+          name: X-Token
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        204:
+          description: Сеанс завершён
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tokenNotCorrect"
+
+components:
+  schemas:
+
+    email:
+      type: string
+      example: Oliver.conner@mail.ru
+      format: email
+
+    password:
+      type: string
+      minLength: 6
+      maxLength: 12
+      example: pass-Word123
+
+    userEntity:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 15
+          example: 'Oliver'
+        email:
+          $ref: "#/components/schemas/email"
+        avatarUrl:
+          type: string
+          example: '/oliver.jpg'
+        isPro:
+          type: boolean
+
+    createUser:
+       allOf:
+        - $ref: '#/components/schemas/userEntity'
+        - type: object
+          properties:
+            password:
+              $ref: '#/components/schemas/password'
+    user:
+      allOf:
+        - $ref: '#/components/schemas/userEntity'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: 6329c3d6a04ab1061c6425ea
+
+    userAuth:
+      allOf:
+        - $ref: '#/components/schemas/user'
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "b2xpdmVyLmNvbm5lckBnbWFpbC5jb20="
+
+    userLogin:
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/email'
+        password:
+          $ref: '#/components/schemas/password'
+
+    commonError:
+      type: object
+      properties:
+        errorType:
+          type: string
+          example: COMMON_ERROR
+        message:
+          type: string
+
+    validationError:
+      type: object
+      properties:
+        errorType:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Ошибка валидации
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              property:
+                type: string
+              value:
+                type: any
+              messages:
+                type: array
+                items:
+                  type: string
+
+    userAuthError:
+      allOf:
+        - $ref: '#/components/schemas/validationError'
+        - type: object
+          properties:
+            details:
+              example: [
+                {
+                  "property": "password",
+                  "value": "p",
+                  "messages": [
+                    "Длинна пароля должна быть от 6 до 12 символов"
+                ]
+                }
+              ]
+
+    getUserAuthError:
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            message:
+              example: Пользователь не авторизован.
+
+    tokenNotCorrect:
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            message:
+              example: В заголовке не корректный токен.
