@@ -2,14 +2,11 @@
   "name": "six-cities",
   "version": "7.0.0",
   "description": "Проект «Шесть городов» от HTML Academy",
-  "keywords": [
-    "rest",
-    "api",
-    "node.js"
-  ],
+  "keywords": ["rest", "api", "node.js"],
   "main": "main.js",
   "scripts": {
-    "start:dev": "npm run ts ./src/main.rest.ts | pino-pretty --colorize --translateTime SYS:standard",
+    "start": "npm run build && node ./dist/main.rest.js",
+    "start:dev": "nodemon",
     "build": "npm run clean && npm run compile",
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
@@ -27,6 +24,7 @@
     "@typescript-eslint/parser": "6.7.0",
     "eslint": "8.49.0",
     "eslint-config-htmlacademy": "9.1.1",
+    "nodemon": "3.1.7",
     "pino-pretty": "11.2.2",
     "rimraf": "5.0.1",
     "ts-node": "10.9.2",
