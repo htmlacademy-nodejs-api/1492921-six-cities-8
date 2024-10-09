@@ -3,7 +3,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-  Ref
+  Ref,
 } from '@typegoose/typegoose';
 
 import { TCity, TOfferGoods, TOfferType, TPoint } from '../../types/index.js';
@@ -16,8 +16,8 @@ export interface OfferEntity extends defaultClasses.Base {}
 @modelOptions({
   schemaOptions: {
     collection: 'offers',
-    timestamps: true
-  }
+    timestamps: true,
+  },
 })
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class OfferEntity extends defaultClasses.TimeStamps {
@@ -30,7 +30,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true })
   public date: Date;
 
-  @prop({ required: true})
+  @prop({ required: true })
   public city: TCity;
 
   @prop({ required: true })
@@ -42,11 +42,13 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true })
   public isPremium: boolean;
 
+  /*
   @prop({ required: true })
   public isFavorite: boolean;
 
   @prop({ required: true })
   public rating: number;
+  */
 
   @prop({ required: true, type: () => String, enum: OFFER_TYPES })
   public type: TOfferType;

@@ -15,7 +15,8 @@ export interface IOfferService {
     dto: UpdateOfferDto
   ): Promise<DocumentType<OfferEntity> | null>;
   incCommentCount(offerId: string): Promise<DocumentType<OfferEntity> | null>;
-  findFavorites(): Promise<DocumentType<OfferEntity>[]>;
+  findFavorites(userId: string): Promise<DocumentType<OfferEntity>[]>;
   findPremium(cityName: TCityName): Promise<DocumentType<OfferEntity>[]>;
   exists(documentId: string): Promise<boolean>;
+  findNew(count: number): Promise<DocumentType<OfferEntity>[]>;
 }
