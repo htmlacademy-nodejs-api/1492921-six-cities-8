@@ -27,12 +27,12 @@ export class DefaultOfferService implements IOfferService {
   public async findById(
     offerId: string
   ): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel.findById(offerId).populate(['hostId']).exec();
+    return this.offerModel.findById(offerId).populate('hostId').exec();
   }
 
   public async find(count?: number): Promise<DocumentType<OfferEntity>[]> {
     const limit = count ?? DefaultCount.offer;
-    return this.offerModel.find({}, {}, { limit }).populate(['hostId']).exec();
+    return this.offerModel.find({}, {}, { limit }).populate('hostId').exec();
   }
 
   public async deleteById(
@@ -47,7 +47,7 @@ export class DefaultOfferService implements IOfferService {
   ): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
       .findByIdAndUpdate(offerId, dto, { new: true })
-      .populate(['hostId'])
+      .populate('hostId')
       .exec();
   }
 
@@ -59,7 +59,7 @@ export class DefaultOfferService implements IOfferService {
     // поэтому пока делаю тупо - как будто избранное отмечает владелец предложения
     return this.offerModel
       .find({ hostId: userId, isFavorite: true }, {}, {})
-      .populate(['hostId'])
+      .populate('hostId')
       .exec();
   }
 
@@ -69,7 +69,7 @@ export class DefaultOfferService implements IOfferService {
     const limit = DefaultCount.premium;
     return this.offerModel
       .find({ city: { name: cityName }, isPremium: true }, {}, { limit })
-      .populate(['hostId'])
+      .populate('hostId')
       .exec();
   }
 
@@ -95,7 +95,7 @@ export class DefaultOfferService implements IOfferService {
       .find()
       .sort({ createdAt: SortType.Down })
       .limit(limit)
-      .populate(['hostId'])
+      .populate('hostId')
       .exec();
   }
 }
