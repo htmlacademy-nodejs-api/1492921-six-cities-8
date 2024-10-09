@@ -1,13 +1,15 @@
 import { inject, injectable } from 'inversify';
 import { DocumentType, types } from '@typegoose/typegoose';
 
-import { IOfferService } from './offer-service.interface.js';
 import { Component, SortType, TCityName } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
-import { OfferEntity } from './offer.entity.js';
-import { CreateOfferDto } from './dto/create-offer.dto.js';
-import { UpdateOfferDto } from './dto/update-offer.dto.js';
-import { DefaultCount } from './offer.constant.js';
+import {
+  CreateOfferDto,
+  DefaultCount,
+  IOfferService,
+  OfferEntity,
+  UpdateOfferDto,
+} from './index.js';
 
 @injectable()
 export class DefaultOfferService implements IOfferService {
