@@ -19,4 +19,5 @@ export interface IOfferService {
   findPremium(cityName: TCityName): Promise<DocumentType<OfferEntity>[]>;
   exists(documentId: string): Promise<boolean>;
   findNew(count: number): Promise<DocumentType<OfferEntity>[]>;
+  updateRating(offerId: string): Promise<DocumentType<OfferEntity> | null>;
 }

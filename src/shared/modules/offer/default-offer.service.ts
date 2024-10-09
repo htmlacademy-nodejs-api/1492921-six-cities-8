@@ -10,13 +10,16 @@ import {
   OfferEntity,
   UpdateOfferDto,
 } from './index.js';
+import { CommentEntity } from '../comment/comment.entity.js';
 
 @injectable()
 export class DefaultOfferService implements IOfferService {
   constructor(
     @inject(Component.Logger) private readonly logger: ILogger,
     @inject(Component.OfferModel)
-    private readonly offerModel: types.ModelType<OfferEntity>
+    private readonly offerModel: types.ModelType<OfferEntity>,
+    @inject(Component.CommentModel)
+    private readonly commentModel: types.ModelType<CommentEntity>
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
@@ -34,7 +37,29 @@ export class DefaultOfferService implements IOfferService {
 
   public async find(count?: number): Promise<DocumentType<OfferEntity>[]> {
     const limit = count ?? DefaultCount.offer;
-    return this.offerModel.find({}, {}, { limit }).populate('hostId').exec();
+    return this.offerModel
+      .find({}, {}, { limit })
+      .aggregate([
+        {
+          $lookup: {
+            from: 'comments',
+            let: { offerId: '$_id' },
+            pipeline: [
+              { $match: { offerId: '$$offerId' } },
+              { $project: { rating: 1 } },
+            ],
+            as: 'comments',
+          },
+        },
+        {
+          $addFields: {
+            commentsCount: { $size: '$comments' },
+          },
+        },
+        { $unset: 'comments' },
+      ])
+      .populate('hostId')
+      .exec();
   }
 
   public async deleteById(
@@ -98,6 +123,20 @@ export class DefaultOfferService implements IOfferService {
       .sort({ createdAt: SortType.Down })
       .limit(limit)
       .populate('hostId')
+      .exec();
+  }
+
+  async updateRating(
+    offerId: string
+  ): Promise<DocumentType<OfferEntity> | null> {
+    const [{ averageRating }] = await this.commentModel.aggregate([
+      { $match: { offerId } },
+      { $group: { _id: null, averageRating: { $avg: '$rating' } } },
+    ]);
+
+    return this.offerModel
+      .findByIdAndUpdate(offerId, [{ rating: averageRating }], { new: true })
+      .populate(['userId'])
       .exec();
   }
 }
