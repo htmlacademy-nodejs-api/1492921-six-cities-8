@@ -30,6 +30,7 @@ import {
 import { ConsoleLogger } from '../../shared/libs/logger/console.logger.js';
 import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from './command.constant.js';
 import { getMongoURI } from '../../shared/helpers/index.js';
+import { CommentModel } from '../../shared/modules/comment/comment.entity.js';
 export class ImportCommand implements ICommand {
   private onImportedUser = async (
     user: TImportObjects,
@@ -75,7 +76,11 @@ export class ImportCommand implements ICommand {
 
   constructor() {
     this.logger = new ConsoleLogger();
-    this.offerService = new DefaultOfferService(this.logger, OfferModel);
+    this.offerService = new DefaultOfferService(
+      this.logger,
+      OfferModel,
+      CommentModel
+    );
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
