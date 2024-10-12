@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { DocumentType, types } from '@typegoose/typegoose';
+import { types } from '@typegoose/typegoose';
 
 import { Component, SortType, TCityName } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
@@ -8,9 +8,10 @@ import {
   DefaultCount,
   IOfferService,
   OfferEntity,
+  OfferEntityDocument,
   UpdateOfferDto,
 } from './index.js';
-import { CommentEntity } from '../comment/comment.entity.js';
+import { CommentEntity } from '../comment/index.js';
 
 @injectable()
 export class DefaultOfferService implements IOfferService {
@@ -22,77 +23,41 @@ export class DefaultOfferService implements IOfferService {
     private readonly commentModel: types.ModelType<CommentEntity>
   ) {}
 
-  public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
+  public async create(dto: CreateOfferDto): Promise<OfferEntityDocument> {
     const result = await this.offerModel.create(dto);
     this.logger.info(`Новое предложение аренды создано: ${dto.title}`);
 
     return result;
   }
 
-  public async findById(
-    offerId: string
-  ): Promise<DocumentType<OfferEntity> | null> {
+  public async findById(offerId: string): Promise<OfferEntityDocument | null> {
     return this.offerModel.findById(offerId).populate('hostId').exec();
   }
 
-  public async find(count?: number): Promise<DocumentType<OfferEntity>[]> {
+  public async find(count?: number): Promise<OfferEntityDocument[]> {
     const limit = count ?? DefaultCount.offer;
-    return this.offerModel
-      .find({}, {}, { limit })
-      .aggregate([
-        {
-          $lookup: {
-            from: 'comments',
-            let: { offerId: '$_id' },
-            pipeline: [
-              { $match: { offerId: '$$offerId' } },
-              { $project: { rating: 1 } },
-            ],
-            as: 'comments',
-          },
-        },
-        {
-          $addFields: {
-            commentsCount: { $size: '$comments' },
-          },
-        },
-        { $unset: 'comments' },
-      ])
-      .populate('hostId')
-      .exec();
+    return this.offerModel.find({}, {}, { limit }).populate('hostId').exec();
   }
 
   public async deleteById(
     offerId: string
-  ): Promise<DocumentType<OfferEntity> | null> {
+  ): Promise<OfferEntityDocument | null> {
     return this.offerModel.findByIdAndDelete(offerId).exec();
   }
 
   public async updateById(
     offerId: string,
     dto: UpdateOfferDto
-  ): Promise<DocumentType<OfferEntity> | null> {
+  ): Promise<OfferEntityDocument | null> {
     return this.offerModel
       .findByIdAndUpdate(offerId, dto, { new: true })
       .populate('hostId')
       .exec();
   }
 
-  public async findFavorites(
-    userId: string
-  ): Promise<DocumentType<OfferEntity>[]> {
-    // Нужна еще одна таблица для хранения Избранных, связывающая предложения и пользователей
-    // Но как связать 2 таблицы и потом сделать фильтрацию по связанной таблице пока не понятно
-    // поэтому пока делаю тупо - как будто избранное отмечает владелец предложения
-    return this.offerModel
-      .find({ hostId: userId, isFavorite: true }, {}, {})
-      .populate('hostId')
-      .exec();
-  }
-
   public async findPremium(
     cityName: TCityName
-  ): Promise<DocumentType<OfferEntity>[]> {
+  ): Promise<OfferEntityDocument[]> {
     const limit = DefaultCount.premium;
     return this.offerModel
       .find({ city: { name: cityName }, isPremium: true }, {}, { limit })
@@ -106,7 +71,7 @@ export class DefaultOfferService implements IOfferService {
 
   public async incCommentCount(
     offerId: string
-  ): Promise<DocumentType<OfferEntity> | null> {
+  ): Promise<OfferEntityDocument | null> {
     return this.offerModel
       .findByIdAndUpdate(offerId, {
         $inc: {
@@ -116,7 +81,7 @@ export class DefaultOfferService implements IOfferService {
       .exec();
   }
 
-  public async findNew(count: number): Promise<DocumentType<OfferEntity>[]> {
+  public async findNew(count: number): Promise<OfferEntityDocument[]> {
     const limit = count ?? DefaultCount.offer;
     return this.offerModel
       .find()
@@ -126,9 +91,7 @@ export class DefaultOfferService implements IOfferService {
       .exec();
   }
 
-  async updateRating(
-    offerId: string
-  ): Promise<DocumentType<OfferEntity> | null> {
+  async updateRating(offerId: string): Promise<OfferEntityDocument | null> {
     const [{ averageRating }] = await this.commentModel.aggregate([
       { $match: { offerId } },
       { $group: { _id: null, averageRating: { $avg: '$rating' } } },

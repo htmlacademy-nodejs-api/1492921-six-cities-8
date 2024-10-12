@@ -1,18 +1,13 @@
-import { DocumentType } from '@typegoose/typegoose';
-
-import { UserEntity } from './user.entity.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UserEntityDocument } from './index.js';
 
 export interface IUserService {
-  create(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>>;
-  findByEmail(email: string): Promise<DocumentType<UserEntity> | null>;
-  findOrCreate(
-    dto: CreateUserDto,
-    salt: string
-  ): Promise<DocumentType<UserEntity>>;
+  create(dto: CreateUserDto, salt: string): Promise<UserEntityDocument>;
+  findByEmail(email: string): Promise<UserEntityDocument | null>;
+  findOrCreate(dto: CreateUserDto, salt: string): Promise<UserEntityDocument>;
   updateById(
     userId: string,
     dto: UpdateUserDto
-  ): Promise<DocumentType<UserEntity> | null>;
+  ): Promise<UserEntityDocument | null>;
 }

@@ -1,4 +1,4 @@
-import { DocumentType, types } from '@typegoose/typegoose';
+import { types } from '@typegoose/typegoose';
 import { inject, injectable } from 'inversify';
 import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
@@ -6,6 +6,7 @@ import {
   CreateUserDto,
   IUserService,
   UpdateUserDto,
+  UserEntityDocument,
   UserEntity,
 } from './index.js';
 
@@ -20,7 +21,7 @@ export class DefaultUserService implements IUserService {
   public async create(
     dto: CreateUserDto,
     salt: string
-  ): Promise<DocumentType<UserEntity>> {
+  ): Promise<UserEntityDocument> {
     const user = new UserEntity(dto);
     user.setPassword(dto.password, salt);
 
@@ -29,16 +30,14 @@ export class DefaultUserService implements IUserService {
     return result;
   }
 
-  public async findByEmail(
-    email: string
-  ): Promise<DocumentType<UserEntity> | null> {
+  public async findByEmail(email: string): Promise<UserEntityDocument | null> {
     return this.userModel.findOne({ email });
   }
 
   public async findOrCreate(
     dto: CreateUserDto,
     salt: string
-  ): Promise<DocumentType<UserEntity>> {
+  ): Promise<UserEntityDocument> {
     const existedUser = await this.findByEmail(dto.email);
 
     if (existedUser) {
@@ -51,7 +50,7 @@ export class DefaultUserService implements IUserService {
   public async updateById(
     userId: string,
     dto: UpdateUserDto
-  ): Promise<DocumentType<UserEntity> | null> {
+  ): Promise<UserEntityDocument | null> {
     return this.userModel.findByIdAndUpdate(userId, dto, { new: true }).exec();
   }
 }
