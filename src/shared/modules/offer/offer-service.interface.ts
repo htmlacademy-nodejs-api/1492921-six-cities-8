@@ -1,9 +1,20 @@
-import { DocumentType } from '@typegoose/typegoose';
-
 import { CreateOfferDto } from './dto/create-offer.dto.js';
-import { OfferEntity } from './offer.entity.js';
+import { UpdateOfferDto } from './dto/update-offer.dto.js';
+import { TCityName } from '../../types/city.type.js';
+import { OfferEntityDocument } from './index.js';
 
 export interface IOfferService {
-  create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
-  findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
+  create(dto: CreateOfferDto): Promise<OfferEntityDocument>;
+  findById(offerId: string): Promise<OfferEntityDocument | null>;
+  find(): Promise<OfferEntityDocument[]>;
+  deleteById(offerId: string): Promise<OfferEntityDocument | null>;
+  updateById(
+    offerId: string,
+    dto: UpdateOfferDto
+  ): Promise<OfferEntityDocument | null>;
+  incCommentCount(offerId: string): Promise<OfferEntityDocument | null>;
+  findPremium(cityName: TCityName): Promise<OfferEntityDocument[]>;
+  exists(documentId: string): Promise<boolean>;
+  findNew(count: number): Promise<OfferEntityDocument[]>;
+  updateRating(offerId: string): Promise<OfferEntityDocument | null>;
 }

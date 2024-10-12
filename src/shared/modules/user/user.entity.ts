@@ -1,4 +1,9 @@
-import { defaultClasses, getModelForClass, prop, modelOptions } from '@typegoose/typegoose';
+import {
+  defaultClasses,
+  getModelForClass,
+  prop,
+  modelOptions,
+} from '@typegoose/typegoose';
 import { TUser } from '../../types/index.js';
 import { EMPTY_AVATAR } from '../../../const/index.js';
 import { createSHA256 } from '../../helpers/index.js';
@@ -10,7 +15,7 @@ export interface UserEntity extends defaultClasses.Base {}
   schemaOptions: {
     collection: 'users',
     timestamps: true,
-  }
+  },
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging

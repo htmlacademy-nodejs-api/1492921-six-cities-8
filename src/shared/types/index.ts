@@ -5,3 +5,5 @@ export { TCity, TCityName } from './city.type.js';
 export { TMockServerData } from './mock-server-data.type.js';
 export { Component } from './component.enum.js';
 export { TImportObjects, TImportFile } from './import.type.js';
+export { SortType } from './sort-type.enum.js';
+export { TRange } from './range.type.js';
