@@ -2,7 +2,7 @@ import { Response, Router } from 'express';
 
 import { IRoute } from '../types/route.interface.js';
 
-export interface Controller {
+export interface IController {
   readonly router: Router;
   addRoute(route: IRoute): void;
   send<T>(res: Response, statusCode: number, data: T): void;
