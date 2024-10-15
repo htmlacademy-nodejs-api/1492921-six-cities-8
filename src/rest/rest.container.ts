@@ -12,6 +12,10 @@ import {
   IDatabaseClient,
   MongoDatabaseClient,
 } from '../shared/libs/database-client/index.js';
+import {
+  AppExceptionFilter,
+  IExceptionFilter,
+} from '../shared/libs/rest/index.js';
 
 export function createRestApplicationContainer() {
   const restApplicationContainer = new Container();
@@ -31,6 +35,10 @@ export function createRestApplicationContainer() {
   restApplicationContainer
     .bind<IDatabaseClient>(Component.DatabaseClient)
     .to(MongoDatabaseClient)
+    .inSingletonScope();
+  restApplicationContainer
+    .bind<IExceptionFilter>(Component.ExceptionFilter)
+    .to(AppExceptionFilter)
     .inSingletonScope();
 
   return restApplicationContainer;
