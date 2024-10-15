@@ -6,6 +6,7 @@ import { IConfig, TRestSchema } from '../shared/libs/config/index.js';
 import { Component } from '../shared/types/index.js';
 import { IDatabaseClient } from '../shared/libs/database-client/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
+import { IController } from '../shared/libs/rest/index.js';
 @injectable()
 export class RestApplication {
   private readonly server: Express;
@@ -13,7 +14,9 @@ export class RestApplication {
     @inject(Component.Logger) private readonly logger: ILogger,
     @inject(Component.Config) private readonly config: IConfig<TRestSchema>,
     @inject(Component.DatabaseClient)
-    private readonly databaseClient: IDatabaseClient
+    private readonly databaseClient: IDatabaseClient,
+    @inject(Component.FavoriteController)
+    private readonly favoriteController: IController
   ) {
     this.server = express();
   }
@@ -35,12 +38,20 @@ export class RestApplication {
     this.server.listen(port);
   }
 
+  private async _initControllers() {
+    this.server.use('/favorites', this.favoriteController.router);
+  }
+
   public async init() {
     this.logger.info('Приложение инициализировано.');
 
-    this.logger.info('Инициализация базы данных...…');
+    this.logger.info('Инициализация базы данных ...');
     await this.initDb();
     this.logger.info('Инициализация базы данных завершена.');
+
+    this.logger.info('Инициализация контроллеров ...');
+    await this._initControllers();
+    this.logger.info('Инициализация контроллеров завершена.');
 
     this.logger.info('Попытка запустить сервер ...');
     await this._initServer();
