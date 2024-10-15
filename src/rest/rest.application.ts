@@ -42,12 +42,24 @@ export class RestApplication {
     this.server.use('/favorites', this.favoriteController.router);
   }
 
+  private async _initMiddleware() {
+    this.server.use(express.json());
+  }
+
   public async init() {
     this.logger.info('Приложение инициализировано.');
 
     this.logger.info('Инициализация базы данных ...');
     await this.initDb();
     this.logger.info('Инициализация базы данных завершена.');
+
+    this.logger.info(
+      'Инициализация промежуточного программного обеспечения на уровне приложения'
+    );
+    await this._initMiddleware();
+    this.logger.info(
+      'Инициализация промежуточного программного обеспечения на уровне приложения завершена.'
+    );
 
     this.logger.info('Инициализация контроллеров ...');
     await this._initControllers();
