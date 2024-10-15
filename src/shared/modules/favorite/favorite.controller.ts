@@ -5,6 +5,7 @@ import { BaseController, HttpMethod } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { IFavoriteService } from './index.js';
+import { StatusCodes } from 'http-status-codes';
 
 @injectable()
 export class FavoriteController extends BaseController {
