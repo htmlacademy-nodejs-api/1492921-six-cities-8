@@ -20,10 +20,17 @@ function fillDTO<T, V>(someDto: ClassConstructor<T>, plainObject: V) {
   });
 }
 
+function createErrorObject(message: string) {
+  return {
+    error: message,
+  };
+}
+
 export {
   generateRandomValue,
   getRandomItems,
   getRandomItem,
   getErrorMessage,
   fillDTO,
+  createErrorObject,
 };
