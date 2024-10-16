@@ -71,6 +71,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/userAuthError"
+        401:
+          description: Ошибка авторизации пользователя
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/getUserAuthError"
 
     get:
       tags:
@@ -805,9 +811,9 @@ components:
               example: [
                 {
                   "property": "password",
-                  "value": "p",
+                  "value": "",
                   "messages": [
-                    "Длинна пароля должна быть от 6 до 12 символов"
+                    "Поле c паролем не найдено в теле запроса"
                   ]
                 }
               ]
