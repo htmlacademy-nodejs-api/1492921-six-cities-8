@@ -45,7 +45,7 @@ export class FavoriteController extends BaseController {
 
   public add(_req: Request, _res: Response): void {
     // Код обработчика
-    this.logger.info('Добавляем в избранное');
+    this.logger.info(' в избранное');
   }
 
   public delete(_req: Request, _res: Response): void {

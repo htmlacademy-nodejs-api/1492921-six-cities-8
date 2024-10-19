@@ -100,7 +100,7 @@ export class DefaultOfferService implements IOfferService {
   ): Promise<OfferEntityDocument[]> {
     const limit = DefaultCount.premium;
     return this.offerModel
-      .find({ city: { name: cityName }, isPremium: true }, {}, { limit })
+      .find({ 'city.name': cityName, isPremium: true }, {}, { limit })
       .populate('hostId')
       .exec();
   }

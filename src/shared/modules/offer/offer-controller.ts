@@ -189,7 +189,6 @@ export class OfferController extends BaseController {
 
   public async getPremium(req: Request, res: Response): Promise<void> {
     const param = req.query.city as string;
-    this.logger.info('getPremium');
     if (!param) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
@@ -210,6 +209,6 @@ export class OfferController extends BaseController {
     }
 
     const offers = await this.offerService.findPremium(cityName as TCityName);
-    this.ok(res, fillDTO(OfferRdo, offers));
+    this.ok(res, fillDTO(OfferListRdo, offers));
   }
 }
