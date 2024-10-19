@@ -48,46 +48,35 @@ export class DefaultOfferService implements IOfferService {
   public async find(
     count: number = DefaultCount.offer
   ): Promise<OfferEntityDocument[]> {
-    return (
-      this.offerModel
-        .aggregate([
-          // {
-          //   $lookup: {
-          //     from: 'comments',
-          //     let: { offerId: '$_id' },
-          //     pipeline: [{ $match: { offerId: '$$offerId' } }],
-          //     as: 'comments',
-          //   },
-          // },
-          // ])
-          {
-            $lookup: {
-              from: 'comments',
-              localField: '_id',
-              foreignField: 'offerId',
-              as: 'comments',
-            },
+    return this.offerModel
+      .aggregate([
+        {
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'offerId',
+            as: 'comments',
           },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'hostId',
-              foreignField: '_id',
-              as: 'host',
-            },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'hostId',
+            foreignField: '_id',
+            as: 'host',
           },
-          {
-            $addFields: {
-              id: { $toString: '$_id' },
-              isFavorite: false,
-              commentsCount: { $size: '$comments' },
-            },
+        },
+        {
+          $addFields: {
+            id: { $toString: '$_id' },
+            isFavorite: false,
+            commentsCount: { $size: '$comments' },
           },
-        ])
-        //.populate('hostId')
-        .limit(count)
-        .exec()
-    );
+        },
+        // { $unset: ['comments', 'hostId'] },
+      ])
+      .limit(count)
+      .exec();
   }
 
   public async deleteById(

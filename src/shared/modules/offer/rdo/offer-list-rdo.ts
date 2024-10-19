@@ -1,13 +1,8 @@
-import { Expose, Type } from 'class-transformer';
-import {
-  TCity,
-  TOfferGoods,
-  TOfferType,
-  TPoint,
-} from '../../../types/index.js';
+import { Expose } from 'class-transformer';
+import { TCity, TOfferType, TPoint } from '../../../types/index.js';
 import { UserRdo } from '../../user/index.js';
 
-export class OfferRdo {
+export class OfferListRdo {
   @Expose()
   public id: string;
 
@@ -27,9 +22,6 @@ export class OfferRdo {
   public previewImage: string;
 
   @Expose()
-  public images: string[];
-
-  @Expose()
   public isPremium: boolean;
 
   @Expose()
@@ -42,19 +34,9 @@ export class OfferRdo {
   public type: TOfferType;
 
   @Expose()
-  public bedrooms: number;
-
-  @Expose()
-  public maxAdults: number;
-
-  @Expose()
   public price: number;
 
   @Expose()
-  public goods: TOfferGoods[];
-
-  @Expose({ name: 'hostId' })
-  @Type(() => UserRdo)
   public host: UserRdo;
 
   @Expose()

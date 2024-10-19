@@ -17,6 +17,7 @@ import { ILogger } from '../../libs/logger/logger.interface.js';
 import { Component, TCityName } from '../../types/index.js';
 import { fillDTO, generateRandomValue } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
+import { OfferListRdo } from './rdo/offer-list-rdo.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -95,7 +96,7 @@ export class OfferController extends BaseController {
 
   public async index(_req: Request, res: Response): Promise<void> {
     const offers = await this.offerService.find();
-    this.ok(res, fillDTO(OfferRdo, offers));
+    this.ok(res, fillDTO(OfferListRdo, offers));
   }
 
   public async create(req: TCreateOfferRequest, res: Response): Promise<void> {
