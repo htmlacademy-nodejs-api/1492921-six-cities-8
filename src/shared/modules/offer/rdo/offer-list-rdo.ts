@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { TCity, TOfferType, TPoint } from '../../../types/index.js';
 import { UserRdo } from '../../user/index.js';
 
@@ -37,6 +37,7 @@ export class OfferListRdo {
   public price: number;
 
   @Expose()
+  @Type(() => UserRdo)
   public host: UserRdo;
 
   @Expose()
