@@ -18,11 +18,11 @@ export class RestApplication {
     @inject(Component.FavoriteController)
     private readonly favoriteController: IController,
     @inject(Component.ExceptionFilter)
-    private readonly appExceptionFilter: IExceptionFilter
-    /*
+    private readonly appExceptionFilter: IExceptionFilter,
     @inject(Component.UserController)
-    private readonly userController: IController
-    */
+    private readonly userController: IController,
+    @inject(Component.OfferController)
+    private readonly offerController: IController
   ) {
     this.server = express();
   }
@@ -46,7 +46,8 @@ export class RestApplication {
 
   private async _initControllers() {
     this.server.use('/favorites', this.favoriteController.router);
-    //this.server.use('/users', this.userController.router);
+    this.server.use('/users', this.userController.router);
+    this.server.use('/offers', this.offerController.router);
   }
 
   private async _initMiddleware() {

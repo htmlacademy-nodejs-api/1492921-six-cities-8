@@ -33,9 +33,4 @@ type TOffer = {
   location: TPoint;
 };
 
-export type {
-  TPoint,
-  TOfferType,
-  TOffer,
-  TOfferGoods
-};
+export type { TPoint, TOfferType, TOffer, TOfferGoods };

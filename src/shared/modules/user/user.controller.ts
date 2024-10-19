@@ -9,13 +9,11 @@ import {
 } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
-import { TCreateUserRequest } from './create-user-request.type.js';
+import { TCreateUserRequest, TLoginUserRequest } from './user-request.type.js';
 import { IUserService } from './user-service.interface.js';
 import { IConfig, TRestSchema } from '../../libs/config/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { UserRdo } from './rdo/user.rdo.js';
-import { TLoginUserRequest } from './login-user-request.type.js';
-
 @injectable()
 export class UserController extends BaseController {
   private salt: string;
@@ -41,19 +39,16 @@ export class UserController extends BaseController {
       method: HttpMethod.Post,
       handler: this.login,
     });
-    /*
     this.addRoute({
       path: '/login',
       method: HttpMethod.Get,
       handler: this.getState,
     });
-
     this.addRoute({
       path: '/logout',
       method: HttpMethod.Delete,
       handler: this.logout,
     });
-    */
   }
 
   public async create(
@@ -104,20 +99,17 @@ export class UserController extends BaseController {
       );
     }
 
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      'Пока не реализовано',
-      'UserController'
-    );
-
     this.ok(res, user);
   }
 
-  public async getState(_req: Request, _res: Response): Promise<void> {
+  public async getState(
+    _req: TLoginUserRequest,
+    _res: Response
+  ): Promise<void> {
     // Код обработчика
   }
 
-  public logout(_req: Request, _res: Response): void {
+  public logout(_req: TLoginUserRequest, _res: Response): void {
     // Код обработчика
   }
 }

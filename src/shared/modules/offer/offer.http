@@ -1,0 +1,86 @@
+# Предложения аренды
+### Просмотр предложений
+GET http://localhost:5000/offers/ HTTP/1.1
+
+
+### Добавление предложения
+POST http://localhost:5000/offers/ HTTP/1.1
+Content-Type: application/json
+{
+   "title":"Penthouse, 4-5 rooms + 5 balconies'",
+   "description":"I am happy to welcome you to my apartment in the city center! Three words: location, cosy and chic!",
+   "date":"2024-08-10T08:11:23.283Z",
+   "city": { "name": "Hamburg", "location": { "latitude": 53.550341, "longitude": 10.000654 } },
+   "previewImage":"https://16.design.htmlacademy.pro/static/hotel/8.jpg",
+   "images":[
+      "https://16.design.htmlacademy.pro/static/hotel/1.jpg",
+      "https://16.design.htmlacademy.pro/static/hotel/11.jpg",
+      "https://16.design.htmlacademy.pro/static/hotel/7.jpg",
+      "https://16.design.htmlacademy.pro/static/hotel/5.jpg",
+      "https://16.design.htmlacademy.pro/static/hotel/6.jpg",
+      "https://16.design.htmlacademy.pro/static/hotel/10.jpg"
+   ],
+   "isPremium":false,
+   "type":"house",
+   "bedrooms":3,
+   "maxAdults":4,
+   "price":100500,
+   "goods":[
+      "Laptop friendly",
+      "Breakfast"
+   ],
+   "hostId":"670fcfd076bd4a5d2cbce8d0",
+   "location":{
+      "latitude":53.649987,
+      "longitude":10.588797
+   }
+}
+
+### Просмотр полной информации о предложении
+GET http://localhost:5000/offers/67136d95914c57958cd9e6ad HTTP/1.1
+
+### Изменение предложения
+PATCH http://localhost:5000/offers/67136d95914c57958cd9e6ad HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "Penthouse, 4-5 rooms + 5 balconies'",
+  "description": "I am happy to welcome you to my apartment in the city center! Three words: location, cosy and chic!",
+  "createdDate": "2024-08-10T08:11:23.283Z",
+  "city": { "name": "Hamburg", "location": { "latitude": 53.550341, "longitude": 10.000654 } },
+  "previewImage": "https://16.design.htmlacademy.pro/static/hotel/8.jpg",
+  "images1": [
+    "https://16.design.htmlacademy.pro/static/hotel/1.jpg",
+    "https://16.design.htmlacademy.pro/static/hotel/11.jpg",
+    "https://16.design.htmlacademy.pro/static/hotel/7.jpg",
+    "https://16.design.htmlacademy.pro/static/hotel/5.jpg",
+    "https://16.design.htmlacademy.pro/static/hotel/6.jpg",
+    "https://16.design.htmlacademy.pro/static/hotel/10.jpg"
+  ],
+  "isPremium": true,
+  "type": "house",
+  "bedrooms": 2,
+  "maxAdults": 4,
+  "price": 100500,
+  "goods": [
+    "Laptop friendly",
+    "Breakfast",
+    "Towels",
+    "Fridge"
+  ],
+  "hostId": "67134423715b7bd107cb0c32",
+  "location": {
+    "latitude": 53.649987,
+    "longitude": 10.588797
+  }
+}
+
+### Удаление предложения
+DELETE http://localhost:5000/offers/6704fc4a2ea09e306cc86233 HTTP/1.1
+
+
+### Премиальные предложения города
+GET http://localhost:5000/offers/premium?city=Hamburg HTTP/1.1
+
+
+###

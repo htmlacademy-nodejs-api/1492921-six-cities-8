@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { types } from '@typegoose/typegoose';
+import { mongoose, types } from '@typegoose/typegoose';
 
 import { Component, SortType, TCityName } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
@@ -12,6 +12,7 @@ import {
   UpdateOfferDto,
 } from './index.js';
 import { CommentEntity } from '../comment/index.js';
+//import { Cities } from '../../../const/data.js';
 
 @injectable()
 export class DefaultOfferService implements IOfferService {
@@ -26,17 +27,67 @@ export class DefaultOfferService implements IOfferService {
   public async create(dto: CreateOfferDto): Promise<OfferEntityDocument> {
     const result = await this.offerModel.create(dto);
     this.logger.info(`Новое предложение аренды создано: ${dto.title}`);
-
     return result;
   }
 
   public async findById(offerId: string): Promise<OfferEntityDocument | null> {
-    return this.offerModel.findById(offerId).populate('hostId').exec();
+    const [comments] = await this.commentModel.aggregate([
+      { $match: { offerId: new mongoose.Types.ObjectId(offerId) } },
+      { $count: 'count' },
+    ]);
+    const result = await this.offerModel
+      .findById(offerId)
+      .populate('hostId')
+      .exec();
+    if (result) {
+      result.commentCount = +comments?.count;
+    }
+    return result;
   }
 
-  public async find(count?: number): Promise<OfferEntityDocument[]> {
-    const limit = count ?? DefaultCount.offer;
-    return this.offerModel.find({}, {}, { limit }).populate('hostId').exec();
+  public async find(
+    count: number = DefaultCount.offer
+  ): Promise<OfferEntityDocument[]> {
+    return (
+      this.offerModel
+        .aggregate([
+          // {
+          //   $lookup: {
+          //     from: 'comments',
+          //     let: { offerId: '$_id' },
+          //     pipeline: [{ $match: { offerId: '$$offerId' } }],
+          //     as: 'comments',
+          //   },
+          // },
+          // ])
+          {
+            $lookup: {
+              from: 'comments',
+              localField: '_id',
+              foreignField: 'offerId',
+              as: 'comments',
+            },
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'hostId',
+              foreignField: '_id',
+              as: 'host',
+            },
+          },
+          {
+            $addFields: {
+              id: { $toString: '$_id' },
+              isFavorite: false,
+              commentsCount: { $size: '$comments' },
+            },
+          },
+        ])
+        //.populate('hostId')
+        .limit(count)
+        .exec()
+    );
   }
 
   public async deleteById(

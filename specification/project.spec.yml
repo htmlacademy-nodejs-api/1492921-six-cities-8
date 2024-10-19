@@ -221,7 +221,7 @@ paths:
             $ref: "#/components/schemas/offerId"
         required: true
 
-    post:
+    patch:
       tags:
         - offers
       summary: Редактирование предложения по аренде
@@ -291,6 +291,42 @@ paths:
       responses:
         204:
           description: Предложение по аренде удалено
+
+  /offers/premium:
+    get:
+      tags:
+        - offers
+      summary: Премиальные предложения для города
+      description: Сервис предоставляет ресурс для получения списка премиальных предложений для определённого города.
+      operationId: getPremium
+
+      parameters:
+      - in: query
+        name: cityName
+        description: Название города
+        required: true
+        schema:
+          type: string
+          enum:
+            - Paris
+            - Cologne
+            - Brussels
+            - Amsterdam
+            - Hamburg
+            - Dusseldorf
+      responses:
+        200:
+          description: Список премиальных предложений получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+        404:
+          description: Указанный город не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cityNotFoundError'
 
   /comments/{offerId}:
     parameters:
@@ -367,42 +403,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/offerNotFoundError'
-
-  /premium:
-    get:
-      tags:
-        - offers
-      summary: Премиальные предложения для города
-      description: Сервис предоставляет ресурс для получения списка премиальных предложений для определённого города.
-      operationId: getPremium
-
-      parameters:
-      - in: query
-        name: cityName
-        description: Название города
-        required: true
-        schema:
-          type: string
-          enum:
-            - Paris
-            - Cologne
-            - Brussels
-            - Amsterdam
-            - Hamburg
-            - Dusseldorf
-      responses:
-        200:
-          description: Список премиальных предложений получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/offers'
-        404:
-          description: Указанный город не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/cityNotFoundError'
 
   /favorites:
     get:
