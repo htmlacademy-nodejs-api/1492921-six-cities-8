@@ -1,13 +1,42 @@
-const generateRandomValue = (min:number, max: number, numAfterDigit = 0) =>
-  +((Math.random() * (max - min)) + min).toFixed(numAfterDigit);
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 
-const getRandomItems = <T>(items: T[] | readonly T[], count?: number):T[] =>
-  items.toSorted(() => 0.5 - Math.random()).slice(0, count ?? generateRandomValue(1, items.length));
+const generateRandomValue = (min: number, max: number, numAfterDigit = 0) =>
+  +(Math.random() * (max - min) + min).toFixed(numAfterDigit);
 
-const getRandomItem = <T>(items: T[] | readonly T[]):T =>
+const getRandomItems = <T>(items: T[] | readonly T[], count?: number): T[] =>
+  items
+    .toSorted(() => 0.5 - Math.random())
+    .slice(0, count ?? generateRandomValue(1, items.length));
+
+const getRandomItem = <T>(items: T[] | readonly T[]): T =>
   items[generateRandomValue(0, items.length - 1)];
 
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : '';
 
-export {generateRandomValue, getRandomItems, getRandomItem, getErrorMessage};
+function fillDTO<T, V>(someDto: ClassConstructor<T>, plainObject: V) {
+  return plainToInstance(someDto, plainObject, {
+    excludeExtraneousValues: true,
+  });
+}
+
+function createErrorObject(message: string) {
+  return {
+    error: message,
+  };
+}
+
+const validateEmail = (email: string): boolean => {
+  const regExpEmail: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  return regExpEmail.test(email);
+};
+
+export {
+  generateRandomValue,
+  getRandomItems,
+  getRandomItem,
+  getErrorMessage,
+  fillDTO,
+  createErrorObject,
+  validateEmail,
+};

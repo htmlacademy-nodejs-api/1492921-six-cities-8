@@ -1,5 +1,5 @@
 import { EMPTY_AVATAR, UserFieldsInLine } from '../../../const/index.js';
-import { validateEmail } from '../../../utils/inet.js';
+import { validateEmail } from '../../helpers/index.js';
 import { TSVFileReader } from './tsv-file-reader.js';
 
 export class TSVUsersFileReader extends TSVFileReader {
