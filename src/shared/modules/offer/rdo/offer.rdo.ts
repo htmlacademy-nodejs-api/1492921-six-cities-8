@@ -58,7 +58,7 @@ export class OfferRdo {
   public host: UserRdo;
 
   @Expose()
-  public commentCount: number;
+  public commentsCount: number;
 
   @Expose()
   public location: TPoint;
