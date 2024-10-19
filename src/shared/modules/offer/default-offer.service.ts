@@ -40,7 +40,7 @@ export class DefaultOfferService implements IOfferService {
       .populate('hostId')
       .exec();
     if (result) {
-      result.commentCount = +comments?.count;
+      result.commentCount = comments?.count ?? 0;
     }
     return result;
   }
