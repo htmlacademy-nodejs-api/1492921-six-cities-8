@@ -17,6 +17,5 @@ export interface IOfferService {
     userId: string
   ): Promise<OfferEntityDocument[]>;
   exists(documentId: string): Promise<boolean>;
-  findNew(count: number): Promise<OfferEntityDocument[]>;
   updateRating(offerId: string): Promise<OfferEntityDocument | null>;
 }

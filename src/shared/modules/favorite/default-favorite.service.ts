@@ -1,6 +1,6 @@
 import { types } from '@typegoose/typegoose';
 import { inject, injectable } from 'inversify';
-import { Component } from '../../types/index.js';
+import { Component, SortType } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { IFavoriteService } from './index.js';
 import { OfferEntity, OfferEntityDocument } from '../offer/index.js';
@@ -15,7 +15,7 @@ export class DefaultFavoriteService implements IFavoriteService {
     private readonly userModel: types.ModelType<UserEntity>
   ) {}
 
-  private async getFavorites(userId: string): Promise<string[]> {
+  public async getFavorites(userId: string): Promise<string[]> {
     const user = await this.userModel.findById(userId).exec();
     return user?.favoriteOffers ?? [];
   }
@@ -72,13 +72,42 @@ export class DefaultFavoriteService implements IFavoriteService {
 
   public async find(userId: string): Promise<OfferEntityDocument[]> {
     const favorites = await this.getFavorites(userId);
-    const offers = await this.offerModel
-      .find({ _id: { $in: favorites } })
+    if (favorites.length === 0) {
+      return [];
+    }
+    return this.offerModel
+      .aggregate([
+        {
+          $addFields: {
+            id: { $toString: '$_id' },
+          },
+        },
+        { $match: { id: { $in: favorites } } },
+        {
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'offerId',
+            as: 'comments',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'hostId',
+            foreignField: '_id',
+            as: 'hostId',
+          },
+        },
+        {
+          $addFields: {
+            isFavorite: true,
+            commentsCount: { $size: '$comments' },
+          },
+        },
+        { $unset: ['comments'] },
+      ])
+      .sort({ date: SortType.Down })
       .exec();
-    console.log(offers);
-    offers.map((offer) => {
-      offer.isFavorite = true;
-    });
-    return offers;
   }
 }

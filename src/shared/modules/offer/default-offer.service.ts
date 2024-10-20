@@ -12,7 +12,7 @@ import {
   UpdateOfferDto,
 } from './index.js';
 import { CommentEntity } from '../comment/index.js';
-import { UserEntity } from '../user/index.js';
+import { IFavoriteService } from '../favorite/favorite-service.interface.js';
 @injectable()
 export class DefaultOfferService implements IOfferService {
   constructor(
@@ -21,8 +21,8 @@ export class DefaultOfferService implements IOfferService {
     private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.CommentModel)
     private readonly commentModel: types.ModelType<CommentEntity>,
-    @inject(Component.UserModel)
-    private readonly userModel: types.ModelType<UserEntity>
+    @inject(Component.FavoriteService)
+    private readonly favoriteService: IFavoriteService
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<OfferEntityDocument> {
@@ -50,7 +50,8 @@ export class DefaultOfferService implements IOfferService {
     userId: string,
     count: number = DefaultCount.offer
   ): Promise<OfferEntityDocument[]> {
-    const offers = await this.offerModel
+    const favorites = await this.favoriteService.getFavorites(userId);
+    return this.offerModel
       .aggregate([
         {
           $lookup: {
@@ -71,24 +72,19 @@ export class DefaultOfferService implements IOfferService {
         {
           $addFields: {
             id: { $toString: '$_id' },
-            isFavorite: false,
             commentsCount: { $size: '$comments' },
           },
         },
-        // { $unset: ['comments'] },
+        {
+          $addFields: {
+            isFavorite: { $in: ['$id', favorites] },
+          },
+        },
+        { $unset: ['comments'] },
       ])
+      .sort({ date: SortType.Down })
       .limit(count)
       .exec();
-
-    if (userId) {
-      const user = await this.userModel.findById(userId);
-      if (user) {
-        offers.map((offer) => {
-          offer.isFavorite = user.favoriteOffers.includes(offer.id);
-        });
-      }
-    }
-    return offers;
   }
 
   public async deleteById(
@@ -116,36 +112,46 @@ export class DefaultOfferService implements IOfferService {
     userId: string,
     count: number = DefaultCount.premium
   ): Promise<OfferEntityDocument[]> {
-    const offers = await this.offerModel
-      .find({ 'city.name': cityName, isPremium: true })
+    const favorites = await this.favoriteService.getFavorites(userId);
+    return this.offerModel
+      .aggregate([
+        { $match: { 'city.name': cityName, isPremium: true } },
+        {
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'offerId',
+            as: 'comments',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'hostId',
+            foreignField: '_id',
+            as: 'hostId',
+          },
+        },
+        {
+          $addFields: {
+            id: { $toString: '$_id' },
+            commentsCount: { $size: '$comments' },
+          },
+        },
+        {
+          $addFields: {
+            isFavorite: { $in: ['$id', favorites] },
+          },
+        },
+        { $unset: ['comments'] },
+      ])
       .sort({ date: SortType.Down })
       .limit(count)
-      .populate('hostId')
       .exec();
-
-    if (userId) {
-      const user = await this.userModel.findById(userId);
-      if (user) {
-        offers.map((offer) => {
-          offer.isFavorite = user.favoriteOffers.includes(offer.id);
-        });
-      }
-    }
-    return offers;
   }
 
   public async exists(documentId: string): Promise<boolean> {
     return (await this.offerModel.exists({ _id: documentId })) !== null;
-  }
-
-  public async findNew(count: number): Promise<OfferEntityDocument[]> {
-    const limit = count ?? DefaultCount.offer;
-    return this.offerModel
-      .find()
-      .sort({ createdAt: SortType.Down })
-      .limit(limit)
-      .populate('hostId')
-      .exec();
   }
 
   async updateRating(offerId: string): Promise<OfferEntityDocument | null> {
