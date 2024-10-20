@@ -6,14 +6,16 @@ import { OfferEntityDocument } from './index.js';
 export interface IOfferService {
   create(dto: CreateOfferDto): Promise<OfferEntityDocument>;
   findById(offerId: string): Promise<OfferEntityDocument | null>;
-  find(): Promise<OfferEntityDocument[]>;
+  find(userId: string): Promise<OfferEntityDocument[]>;
   deleteById(offerId: string): Promise<OfferEntityDocument | null>;
   updateById(
     offerId: string,
     dto: UpdateOfferDto
   ): Promise<OfferEntityDocument | null>;
-  incCommentCount(offerId: string): Promise<OfferEntityDocument | null>;
-  findPremium(cityName: TCityName): Promise<OfferEntityDocument[]>;
+  findPremium(
+    cityName: TCityName,
+    userId: string
+  ): Promise<OfferEntityDocument[]>;
   exists(documentId: string): Promise<boolean>;
   findNew(count: number): Promise<OfferEntityDocument[]>;
   updateRating(offerId: string): Promise<OfferEntityDocument | null>;

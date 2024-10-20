@@ -42,6 +42,8 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true })
   public isPremium: boolean;
 
+  public isFavorite: boolean;
+
   @prop({ required: true, default: 0 })
   public rating: number;
 
@@ -66,7 +68,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   })
   public hostId: Ref<UserEntity>;
 
-  public commentCount: number;
+  public commentsCount: number;
 
   @prop({ required: true })
   public location: TPoint;

@@ -1,8 +1,14 @@
 import { OfferEntityDocument } from '../offer/index.js';
-import { UpdateFavoriteDto } from './dto/update-favorite.dto.js';
 
 export interface IFavoriteService {
-  addFavorite(dto: UpdateFavoriteDto): Promise<OfferEntityDocument | null>;
-  delFavorite(dto: UpdateFavoriteDto): Promise<OfferEntityDocument | null>;
+  exists(userId: string, offerId: string): Promise<boolean>;
+  addFavorite(
+    userId: string,
+    offerId: string
+  ): Promise<OfferEntityDocument | null>;
+  delFavorite(
+    userId: string,
+    offerId: string
+  ): Promise<OfferEntityDocument | null>;
   find(userId: string): Promise<OfferEntityDocument[]>;
 }

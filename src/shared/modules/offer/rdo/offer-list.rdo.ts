@@ -10,9 +10,6 @@ export class OfferListRdo {
   public title: string;
 
   @Expose()
-  public description: string;
-
-  @Expose()
   public date: string;
 
   @Expose()
@@ -36,7 +33,7 @@ export class OfferListRdo {
   @Expose()
   public price: number;
 
-  @Expose()
+  @Expose({ name: 'hostId' })
   @Type(() => UserRdo)
   public host: UserRdo;
 

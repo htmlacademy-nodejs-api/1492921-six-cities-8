@@ -11,6 +11,9 @@ import { UserEntity } from '../user/index.js';
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface CommentEntity extends defaultClasses.Base {}
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export interface CommentEntity extends defaultClasses.TimeStamps {}
+
 @modelOptions({
   schemaOptions: {
     collection: 'comments',
@@ -21,9 +24,6 @@ export interface CommentEntity extends defaultClasses.Base {}
 export class CommentEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, trim: true })
   public comment: string;
-
-  @prop({ required: true, trim: true })
-  public date: Date;
 
   @prop({ required: true, trim: true })
   public rating: number;

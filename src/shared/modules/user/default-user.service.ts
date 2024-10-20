@@ -1,5 +1,6 @@
 import { types } from '@typegoose/typegoose';
 import { inject, injectable } from 'inversify';
+
 import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import {

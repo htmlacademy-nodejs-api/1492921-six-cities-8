@@ -12,8 +12,7 @@ import {
   UpdateOfferDto,
 } from './index.js';
 import { CommentEntity } from '../comment/index.js';
-//import { Cities } from '../../../const/data.js';
-
+import { UserEntity } from '../user/index.js';
 @injectable()
 export class DefaultOfferService implements IOfferService {
   constructor(
@@ -21,12 +20,14 @@ export class DefaultOfferService implements IOfferService {
     @inject(Component.OfferModel)
     private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.CommentModel)
-    private readonly commentModel: types.ModelType<CommentEntity>
+    private readonly commentModel: types.ModelType<CommentEntity>,
+    @inject(Component.UserModel)
+    private readonly userModel: types.ModelType<UserEntity>
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<OfferEntityDocument> {
     const result = await this.offerModel.create(dto);
-    this.logger.info(`Новое предложение аренды создано: ${dto.title}`);
+    this.logger.info(`Новое предложение аренды с id = ${result.id} создано`);
     return result;
   }
 
@@ -40,15 +41,16 @@ export class DefaultOfferService implements IOfferService {
       .populate('hostId')
       .exec();
     if (result) {
-      result.commentCount = comments?.count ?? 0;
+      result.commentsCount = comments?.count ?? 0;
     }
     return result;
   }
 
   public async find(
+    userId: string,
     count: number = DefaultCount.offer
   ): Promise<OfferEntityDocument[]> {
-    return this.offerModel
+    const offers = await this.offerModel
       .aggregate([
         {
           $lookup: {
@@ -63,7 +65,7 @@ export class DefaultOfferService implements IOfferService {
             from: 'users',
             localField: 'hostId',
             foreignField: '_id',
-            as: 'host',
+            as: 'hostId',
           },
         },
         {
@@ -73,52 +75,67 @@ export class DefaultOfferService implements IOfferService {
             commentsCount: { $size: '$comments' },
           },
         },
-        // { $unset: ['comments', 'hostId'] },
+        // { $unset: ['comments'] },
       ])
       .limit(count)
       .exec();
+
+    if (userId) {
+      const user = await this.userModel.findById(userId);
+      if (user) {
+        offers.map((offer) => {
+          offer.isFavorite = user.favoriteOffers.includes(offer.id);
+        });
+      }
+    }
+    return offers;
   }
 
   public async deleteById(
     offerId: string
   ): Promise<OfferEntityDocument | null> {
-    return this.offerModel.findByIdAndDelete(offerId).exec();
+    const result = this.offerModel.findByIdAndDelete(offerId).exec();
+    this.logger.info(`Предложение аренды с id = ${offerId} удалено`);
+    return result;
   }
 
   public async updateById(
     offerId: string,
     dto: UpdateOfferDto
   ): Promise<OfferEntityDocument | null> {
-    return this.offerModel
+    const result = this.offerModel
       .findByIdAndUpdate(offerId, dto, { new: true })
       .populate('hostId')
       .exec();
+    this.logger.info(`Предложение аренды с id = ${offerId} изменено`);
+    return result;
   }
 
   public async findPremium(
-    cityName: TCityName
+    cityName: TCityName,
+    userId: string,
+    count: number = DefaultCount.premium
   ): Promise<OfferEntityDocument[]> {
-    const limit = DefaultCount.premium;
-    return this.offerModel
-      .find({ 'city.name': cityName, isPremium: true }, {}, { limit })
+    const offers = await this.offerModel
+      .find({ 'city.name': cityName, isPremium: true })
+      .sort({ date: SortType.Down })
+      .limit(count)
       .populate('hostId')
       .exec();
+
+    if (userId) {
+      const user = await this.userModel.findById(userId);
+      if (user) {
+        offers.map((offer) => {
+          offer.isFavorite = user.favoriteOffers.includes(offer.id);
+        });
+      }
+    }
+    return offers;
   }
 
   public async exists(documentId: string): Promise<boolean> {
     return (await this.offerModel.exists({ _id: documentId })) !== null;
-  }
-
-  public async incCommentCount(
-    offerId: string
-  ): Promise<OfferEntityDocument | null> {
-    return this.offerModel
-      .findByIdAndUpdate(offerId, {
-        $inc: {
-          commentCount: 1,
-        },
-      })
-      .exec();
   }
 
   public async findNew(count: number): Promise<OfferEntityDocument[]> {

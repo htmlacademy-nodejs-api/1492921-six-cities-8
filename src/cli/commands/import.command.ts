@@ -79,7 +79,8 @@ export class ImportCommand implements ICommand {
     this.offerService = new DefaultOfferService(
       this.logger,
       OfferModel,
-      CommentModel
+      CommentModel,
+      UserModel
     );
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);

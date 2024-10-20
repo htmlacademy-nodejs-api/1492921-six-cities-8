@@ -55,7 +55,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/userLogin"
+              $ref: '#/components/schemas/userLogin'
         required: true
 
       responses:
@@ -64,19 +64,19 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/userAuth"
+                $ref: '#/components/schemas/userAuth'
         400:
           description: Ошибка тела запроса
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/userAuthError"
+                $ref: '#/components/schemas/userAuthError'
         401:
           description: Ошибка авторизации пользователя
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/getUserAuthError"
+                $ref: '#/components/schemas/getUserAuthError'
 
     get:
       tags:
@@ -100,15 +100,15 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/userAuth"
+                $ref: '#/components/schemas/userAuth'
         401:
           description: Пользователь не авторизован
           content:
             application/json:
               schema:
                 oneOf:
-                - "$ref": "#/components/schemas/getUserAuthError"
-                - "$ref": "#/components/schemas/tokenNotCorrect"
+                - $ref: '#/components/schemas/getUserAuthError'
+                - $ref: '#/components/schemas/tokenNotCorrect'
 
   /users/logout:
     delete:
@@ -135,7 +135,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
 
   /offers:
     post:
@@ -180,7 +180,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
     get:
       tags:
         - offers
@@ -218,7 +218,7 @@ paths:
         example: 6700f39e2b06e23d165a401a
         description: Id предложения по аренде
         schema:
-            $ref: "#/components/schemas/offerId"
+            $ref: '#/components/schemas/offerId'
         required: true
 
     patch:
@@ -254,7 +254,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
         404:
           description: Предложение по аренде не найдено
           content:
@@ -335,7 +335,7 @@ paths:
       example: 6700f39e2b06e23d165a401a
       description: Id предложения по аренде
       schema:
-          $ref: "#/components/schemas/offerId"
+          $ref: '#/components/schemas/offerId'
       required: true
 
     get:
@@ -396,7 +396,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
         404:
           description: Предложение по аренде не найдено
           content:
@@ -433,7 +433,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
 
   /favorites/{offerId}:
     parameters:
@@ -449,7 +449,7 @@ paths:
         example: 6700f39e2b06e23d165a401a
         description: Id предложения по аренде
         schema:
-          $ref: "#/components/schemas/offerId"
+          $ref: '#/components/schemas/offerId'
         required: true
     post:
       tags:
@@ -464,13 +464,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/offer"
+                $ref: '#/components/schemas/offer'
         401:
           description: Пользователь не авторизован
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
         404:
           description: Предложение по аренде не найдено
           content:
@@ -499,7 +499,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/tokenNotCorrect"
+                $ref: '#/components/schemas/tokenNotCorrect'
         404:
           description: Предложение по аренде не найдено
           content:
@@ -534,12 +534,12 @@ components:
           type: string
           minLength: 1
           maxLength: 15
-          example: 'Oliver'
+          example: Oliver'
         email:
-          $ref: "#/components/schemas/email"
+          $ref: '#/components/schemas/email'
         avatarUrl:
           type: string
-          example: '/oliver.jpg'
+          example: /oliver.jpg
         isPro:
           type: boolean
 
@@ -550,13 +550,17 @@ components:
           properties:
             password:
               $ref: '#/components/schemas/password'
+    userId:
+      description: Уникальный идентификатор пользователя
+      type: string
+      example: 6329c3d6a04ab1061c6425ea
+
     user:
       allOf:
         - type: object
           properties:
             id:
-              type: string
-              example: 6329c3d6a04ab1061c6425ea
+              $ref: '#/components/schemas/userId'
         - $ref: '#/components/schemas/userMain'
 
     userAuth:
@@ -566,7 +570,7 @@ components:
           properties:
             token:
               type: string
-              example: "b2xpdmVyLmNvbm5lckBnbWFpbC5jb20="
+              example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
 
     userLogin:
       type: object
@@ -591,7 +595,7 @@ components:
       properties:
         name:
           type: string
-          example: 'Amsterdam'
+          example: Amsterdam
         location:
           type: object
           $ref: '#/components/schemas/location'
@@ -652,20 +656,25 @@ components:
         - location
 
     offerAdditional:
-      type: object
-      properties:
-        isFavorite:
-          type: boolean
-        rating:
-          $ref: "#/components/schemas/rating"
-        commentsCount:
-          type: number
-          description: Количество комментариев
-          example: 26
-      required:
-        - isFavorite
-        - rating
-        - commentsCount
+      allOf:
+        - type: object
+          properties:
+            host:
+              $ref: '#/components/schemas/userMain'
+        - type: object
+          properties:
+            isFavorite:
+              type: boolean
+            rating:
+              $ref: '#/components/schemas/rating'
+            commentsCount:
+              type: number
+              description: Количество комментариев
+              example: 26
+          required:
+            - isFavorite
+            - rating
+            - commentsCount
 
     offerPreview:
       allOf:
@@ -681,11 +690,11 @@ components:
     offers:
       type: array
       items:
-        $ref: "#/components/schemas/offerPreview"
+        $ref: '#/components/schemas/offerPreview'
 
     createOffer:
       allOf:
-        - $ref: "#/components/schemas/offerMain"
+        - $ref: '#/components/schemas/offerMain'
         - type: object
           properties:
             description:
@@ -703,6 +712,9 @@ components:
                 'https://16.design.htmlacademy.pro/static/hotel/1.jpg',
                 'https://16.design.htmlacademy.pro/static/hotel/2.jpg',
                 'https://16.design.htmlacademy.pro/static/hotel/3.jpg',
+                'https://16.design.htmlacademy.pro/static/hotel/4.jpg',
+                'https://16.design.htmlacademy.pro/static/hotel/5.jpg',
+                'https://16.design.htmlacademy.pro/static/hotel/6.jpg'
               ]
             bedrooms:
               type: integer
@@ -721,15 +733,15 @@ components:
                 type: string
                 enum: [Breakfast, Air conditioning, Laptop friendly workspace, Baby seat, Washer, Towels, Fridge]
               example: [Breakfast, Air conditioning, Washer]
-            host:
-              $ref: '#/components/schemas/userMain'
+            hostId:
+              $ref: '#/components/schemas/userId'
           required:
             - description
             - images
             - bedrooms
             - maxAdults
             - goods
-            - host
+            - hostId
 
     offer:
       allOf:
@@ -755,7 +767,7 @@ components:
           format: date
           description: Дата публикации комментария
         rating:
-          $ref: "#/components/schemas/rating"
+          $ref: '#/components/schemas/rating'
 
     comment:
       allOf:
@@ -797,10 +809,8 @@ components:
                 type: string
               value:
                 type: string
-              messages:
-                type: array
-                items:
-                  type: string
+              message:
+                type: string
 
     userAuthError:
       allOf:
@@ -812,9 +822,7 @@ components:
                 {
                   "property": "password",
                   "value": "",
-                  "messages": [
-                    "Поле c паролем не найдено в теле запроса"
-                  ]
+                  "message": "Поле c паролем не найдено в теле запроса"
                 }
               ]
 
@@ -852,16 +860,12 @@ components:
                 {
                   "property": "title",
                   "value": "House",
-                  "messages": [
-                    "Название предложения должно быть не менее 10, но не более 100 символов"
-                  ]
+                  "message": "Название предложения должно быть не менее 10, но не более 100 символов"
                 },
                 {
                   "property": "bedrooms",
                   "value": "9",
-                  "messages": [
-                    "Количество комнат должно быть не менее 1, но не более 8"
-                  ]
+                  "message": "Количество комнат должно быть не менее 1, но не более 8"
                 }
               ]
 
@@ -875,9 +879,7 @@ components:
                 {
                   "property": "comment",
                   "value": "OK",
-                  "messages": [
-                    "Комментарий должен быть не менее 5, но не более 1024 символов"
-                  ]
+                  "message": "Комментарий должен быть не менее 5, но не более 1024 символов"
                 }
               ]
 
@@ -903,4 +905,4 @@ components:
         - type: object
           properties:
             message:
-              example: Это предложение по аренде не находится в избранном"
+              example: Это предложение по аренде не находится в избранном

@@ -15,17 +15,19 @@ import {
 } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/logger.interface.js';
 import { Component, TCityName } from '../../types/index.js';
-import { fillDTO, generateRandomValue } from '../../helpers/index.js';
+import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
-import { OfferListRdo } from './rdo/offer-list-rdo.js';
-
+import { OfferListRdo } from './rdo/offer-list.rdo.js';
+import { USER_ID, UserController } from '../user/user.controller.js';
 @injectable()
 export class OfferController extends BaseController {
   constructor(
     @inject(Component.Logger)
     protected readonly logger: ILogger,
     @inject(Component.OfferService)
-    protected readonly offerService: IOfferService
+    private readonly offerService: IOfferService,
+    @inject(Component.UserController)
+    private readonly userController: UserController
   ) {
     super(logger);
 
@@ -68,20 +70,7 @@ export class OfferController extends BaseController {
     });
   }
 
-  private checkUser(_token: string): boolean {
-    // Пока заглушка
-    if (generateRandomValue(1, 2) === 1) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        'Пользователь не авторизован',
-        'OfferController'
-      );
-      return false;
-    }
-    return true;
-  }
-
-  private async checkOffer(offerId: string): Promise<boolean> {
+  public async checkOffer(offerId: string): Promise<boolean> {
     const offer = await this.offerService.findById(offerId);
     if (!offer) {
       throw new HttpError(
@@ -95,7 +84,7 @@ export class OfferController extends BaseController {
   }
 
   public async index(_req: Request, res: Response): Promise<void> {
-    const offers = await this.offerService.find();
+    const offers = await this.offerService.find(USER_ID);
     this.ok(res, fillDTO(OfferListRdo, offers));
   }
 
@@ -123,8 +112,7 @@ export class OfferController extends BaseController {
         'OfferController'
       );
     }
-
-    if (this.checkUser('token')) {
+    if (this.userController.checkUser('token')) {
       const result = await this.offerService.create(body);
       const offer = await this.offerService.findById(result.id);
       this.created(res, fillDTO(OfferRdo, offer));
@@ -159,7 +147,10 @@ export class OfferController extends BaseController {
         'OfferController'
       );
     }
-    if (this.checkUser('token') && (await this.checkOffer(offerId))) {
+    if (
+      this.userController.checkUser('token') &&
+      (await this.checkOffer(offerId))
+    ) {
       const result = await this.offerService.updateById(offerId, body);
       if (result) {
         const offer = await this.offerService.findById(offerId);
@@ -208,7 +199,10 @@ export class OfferController extends BaseController {
       );
     }
 
-    const offers = await this.offerService.findPremium(cityName as TCityName);
+    const offers = await this.offerService.findPremium(
+      cityName as TCityName,
+      USER_ID
+    );
     this.ok(res, fillDTO(OfferListRdo, offers));
   }
 }
