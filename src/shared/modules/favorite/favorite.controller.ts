@@ -3,22 +3,30 @@ import { Request, Response } from 'express';
 
 import {
   BaseController,
-  //HttpError,
+  HttpError,
   HttpMethod,
 } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { IFavoriteService } from './index.js';
-//import { StatusCodes } from 'http-status-codes';
-
-// Временно константа для отладки, пока не научились считывать данные о пользователе из токена
-const USER_ID = '670fcfd076bd4a5d2cbce8d0';
+import { fillDTO } from '../../helpers/index.js';
+import { OfferListRdo } from '../offer/rdo/offer-list.rdo.js';
+import { UserController } from '../user/index.js';
+import { OfferController } from '../offer/offer-controller.js';
+import { OfferRdo } from '../offer/rdo/offer.rdo.js';
+import { StatusCodes } from 'http-status-codes';
+import { USER_ID } from '../user/user.controller.js';
 @injectable()
 export class FavoriteController extends BaseController {
   constructor(
-    @inject(Component.Logger) protected readonly logger: ILogger,
+    @inject(Component.Logger)
+    protected readonly logger: ILogger,
     @inject(Component.FavoriteService)
-    private readonly favoriteService: IFavoriteService
+    private readonly favoriteService: IFavoriteService,
+    @inject(Component.UserController)
+    private readonly userController: UserController,
+    @inject(Component.OfferController)
+    private readonly offerController: OfferController
   ) {
     super(logger);
 
@@ -38,18 +46,43 @@ export class FavoriteController extends BaseController {
   }
 
   public async index(_req: Request, res: Response): Promise<void> {
-    this.logger.info('Вывод списка избранных');
-    const favorites = await this.favoriteService.find(USER_ID); // пока заглушка вместо userId
-    this.ok(res, favorites);
+    if (this.userController.checkUser('123')) {
+      const favorites = await this.favoriteService.find(USER_ID); // пока заглушка вместо userId
+      this.ok(res, fillDTO(OfferListRdo, favorites));
+    }
   }
 
-  public add(_req: Request, _res: Response): void {
-    // Код обработчика
-    this.logger.info(' в избранное');
+  public async add(req: Request, res: Response): Promise<void> {
+    const offerId = req.params.offerId as string;
+    if (this.userController.checkUser('123')) {
+      if (await this.offerController.checkOffer(offerId)) {
+        if (await this.favoriteService.exists(USER_ID, offerId)) {
+          throw new HttpError(
+            StatusCodes.CONFLICT,
+            'Это предложение по аренде уже находится в избранном',
+            'FavoriteController'
+          );
+        }
+        const offer = await this.favoriteService.addFavorite(USER_ID, offerId);
+        this.ok(res, fillDTO(OfferRdo, offer));
+      }
+    }
   }
 
-  public delete(_req: Request, _res: Response): void {
-    // Код обработчика
-    this.logger.info('Удаляем из избранного');
+  public async delete(req: Request, res: Response): Promise<void> {
+    const offerId = req.params.offerId as string;
+    if (this.userController.checkUser('123')) {
+      if (await this.offerController.checkOffer(offerId)) {
+        if (!(await this.favoriteService.exists(USER_ID, offerId))) {
+          throw new HttpError(
+            StatusCodes.CONFLICT,
+            'Это предложение по аренде не находится в избранном',
+            'FavoriteController'
+          );
+        }
+        const offer = await this.favoriteService.delFavorite(USER_ID, offerId);
+        this.ok(res, fillDTO(OfferRdo, offer));
+      }
+    }
   }
 }

@@ -1,61 +1,113 @@
 import { types } from '@typegoose/typegoose';
 import { inject, injectable } from 'inversify';
-import { Component } from '../../types/index.js';
+import { Component, SortType } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
-import {
-  IFavoriteService,
-  UpdateFavoriteDto,
-  FavoriteEntity,
-} from './index.js';
+import { IFavoriteService } from './index.js';
 import { OfferEntity, OfferEntityDocument } from '../offer/index.js';
-
+import { UserEntity } from '../user/index.js';
 @injectable()
 export class DefaultFavoriteService implements IFavoriteService {
   constructor(
     @inject(Component.Logger) private readonly logger: ILogger,
-    @inject(Component.FavoriteModel)
-    private readonly FavoriteModel: types.ModelType<FavoriteEntity>,
     @inject(Component.OfferModel)
-    private readonly offerModel: types.ModelType<OfferEntity>
+    private readonly offerModel: types.ModelType<OfferEntity>,
+    @inject(Component.UserModel)
+    private readonly userModel: types.ModelType<UserEntity>
   ) {}
 
-  private async exists(dto: UpdateFavoriteDto): Promise<boolean> {
-    return (await this.FavoriteModel.exists(dto)) !== null;
+  public async getFavorites(userId: string): Promise<string[]> {
+    const user = await this.userModel.findById(userId).exec();
+    return user?.favoriteOffers ?? [];
+  }
+
+  public async exists(userId: string, offerId: string): Promise<boolean> {
+    const favorites = await this.getFavorites(userId);
+    return favorites.includes(offerId);
   }
 
   public async addFavorite(
-    dto: UpdateFavoriteDto
+    userId: string,
+    offerId: string
   ): Promise<OfferEntityDocument | null> {
-    if (!this.exists(dto)) {
-      const result = await this.FavoriteModel.create(dto);
-      if (result) {
+    if (!(await this.exists(userId, offerId))) {
+      const favorites = await this.getFavorites(userId);
+      const offer = await this.offerModel.findById(offerId);
+      if (offer) {
+        favorites.push(offerId);
+        await this.userModel
+          .findByIdAndUpdate(userId, { favoriteOffers: favorites })
+          .exec();
+        offer.isFavorite = true;
         this.logger.info(
-          `Предложение аренды с id = ${dto.offerId} добавлено в избранное пользователя с id =  ${dto.userId}`
+          `Предложение аренды с id = ${offerId} добавлено в избранное`
         );
-        return result.populate('offerId');
+        return offer;
       }
     }
     return null;
   }
 
   public async delFavorite(
-    dto: UpdateFavoriteDto
+    userId: string,
+    offerId: string
   ): Promise<OfferEntityDocument | null> {
-    if (!(await this.exists(dto))) {
-      if (await this.FavoriteModel.findOneAndDelete(dto)) {
+    if (await this.exists(userId, offerId)) {
+      const favorites = await this.getFavorites(userId);
+      const offer = await this.offerModel.findById(offerId);
+      if (offer) {
+        await this.userModel
+          .findByIdAndUpdate(userId, {
+            favoriteOffers: favorites.filter((id) => id !== offerId),
+          })
+          .exec();
+        offer.isFavorite = false;
         this.logger.info(
-          `Предложение аренды с id = ${dto.offerId} удалено из избранного пользователя с id =  ${dto.userId}`
+          `Предложение аренды с id = ${offerId} удалено из избранного`
         );
-        return this.offerModel.findById(dto.offerId);
+        return offer;
       }
     }
     return null;
   }
 
   public async find(userId: string): Promise<OfferEntityDocument[]> {
+    const favorites = await this.getFavorites(userId);
+    if (favorites.length === 0) {
+      return [];
+    }
     return this.offerModel
-      .find({ userId: userId }, {}, {})
-      .populate('offerId')
+      .aggregate([
+        {
+          $addFields: {
+            id: { $toString: '$_id' },
+          },
+        },
+        { $match: { id: { $in: favorites } } },
+        {
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'offerId',
+            as: 'comments',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'hostId',
+            foreignField: '_id',
+            as: 'hostId',
+          },
+        },
+        {
+          $addFields: {
+            isFavorite: true,
+            commentsCount: { $size: '$comments' },
+          },
+        },
+        { $unset: ['comments'] },
+      ])
+      .sort({ date: SortType.Down })
       .exec();
   }
 }

@@ -12,8 +12,7 @@ import {
   UpdateOfferDto,
 } from './index.js';
 import { CommentEntity } from '../comment/index.js';
-//import { Cities } from '../../../const/data.js';
-
+import { IFavoriteService } from '../favorite/favorite-service.interface.js';
 @injectable()
 export class DefaultOfferService implements IOfferService {
   constructor(
@@ -21,12 +20,14 @@ export class DefaultOfferService implements IOfferService {
     @inject(Component.OfferModel)
     private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.CommentModel)
-    private readonly commentModel: types.ModelType<CommentEntity>
+    private readonly commentModel: types.ModelType<CommentEntity>,
+    @inject(Component.FavoriteService)
+    private readonly favoriteService: IFavoriteService
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<OfferEntityDocument> {
     const result = await this.offerModel.create(dto);
-    this.logger.info(`Новое предложение аренды создано: ${dto.title}`);
+    this.logger.info(`Новое предложение аренды с id = ${result.id} создано`);
     return result;
   }
 
@@ -40,14 +41,16 @@ export class DefaultOfferService implements IOfferService {
       .populate('hostId')
       .exec();
     if (result) {
-      result.commentCount = comments?.count ?? 0;
+      result.commentsCount = comments?.count ?? 0;
     }
     return result;
   }
 
   public async find(
+    userId: string,
     count: number = DefaultCount.offer
   ): Promise<OfferEntityDocument[]> {
+    const favorites = await this.favoriteService.getFavorites(userId);
     return this.offerModel
       .aggregate([
         {
@@ -63,18 +66,23 @@ export class DefaultOfferService implements IOfferService {
             from: 'users',
             localField: 'hostId',
             foreignField: '_id',
-            as: 'host',
+            as: 'hostId',
           },
         },
         {
           $addFields: {
             id: { $toString: '$_id' },
-            isFavorite: false,
             commentsCount: { $size: '$comments' },
           },
         },
-        // { $unset: ['comments', 'hostId'] },
+        {
+          $addFields: {
+            isFavorite: { $in: ['$id', favorites] },
+          },
+        },
+        { $unset: ['comments'] },
       ])
+      .sort({ date: SortType.Down })
       .limit(count)
       .exec();
   }
@@ -82,53 +90,68 @@ export class DefaultOfferService implements IOfferService {
   public async deleteById(
     offerId: string
   ): Promise<OfferEntityDocument | null> {
-    return this.offerModel.findByIdAndDelete(offerId).exec();
+    const result = this.offerModel.findByIdAndDelete(offerId).exec();
+    this.logger.info(`Предложение аренды с id = ${offerId} удалено`);
+    return result;
   }
 
   public async updateById(
     offerId: string,
     dto: UpdateOfferDto
   ): Promise<OfferEntityDocument | null> {
-    return this.offerModel
+    const result = this.offerModel
       .findByIdAndUpdate(offerId, dto, { new: true })
       .populate('hostId')
       .exec();
+    this.logger.info(`Предложение аренды с id = ${offerId} изменено`);
+    return result;
   }
 
   public async findPremium(
-    cityName: TCityName
+    cityName: TCityName,
+    userId: string,
+    count: number = DefaultCount.premium
   ): Promise<OfferEntityDocument[]> {
-    const limit = DefaultCount.premium;
+    const favorites = await this.favoriteService.getFavorites(userId);
     return this.offerModel
-      .find({ 'city.name': cityName, isPremium: true }, {}, { limit })
-      .populate('hostId')
+      .aggregate([
+        { $match: { 'city.name': cityName, isPremium: true } },
+        {
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'offerId',
+            as: 'comments',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'hostId',
+            foreignField: '_id',
+            as: 'hostId',
+          },
+        },
+        {
+          $addFields: {
+            id: { $toString: '$_id' },
+            commentsCount: { $size: '$comments' },
+          },
+        },
+        {
+          $addFields: {
+            isFavorite: { $in: ['$id', favorites] },
+          },
+        },
+        { $unset: ['comments'] },
+      ])
+      .sort({ date: SortType.Down })
+      .limit(count)
       .exec();
   }
 
   public async exists(documentId: string): Promise<boolean> {
     return (await this.offerModel.exists({ _id: documentId })) !== null;
-  }
-
-  public async incCommentCount(
-    offerId: string
-  ): Promise<OfferEntityDocument | null> {
-    return this.offerModel
-      .findByIdAndUpdate(offerId, {
-        $inc: {
-          commentCount: 1,
-        },
-      })
-      .exec();
-  }
-
-  public async findNew(count: number): Promise<OfferEntityDocument[]> {
-    const limit = count ?? DefaultCount.offer;
-    return this.offerModel
-      .find()
-      .sort({ createdAt: SortType.Down })
-      .limit(limit)
-      .populate('hostId')
-      .exec();
   }
 
   async updateRating(offerId: string): Promise<OfferEntityDocument | null> {

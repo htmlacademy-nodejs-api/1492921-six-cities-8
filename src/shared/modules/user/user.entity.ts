@@ -35,6 +35,9 @@ export class UserEntity extends defaultClasses.TimeStamps implements TUser {
   @prop({ required: true })
   public isPro: boolean;
 
+  @prop({ required: false, default: [] })
+  public favoriteOffers: string[];
+
   constructor(userData: TUser) {
     super();
 
