@@ -13,23 +13,23 @@ Content-Type: application/json
    "description":"I am happy to welcome you to my apartment in the city center! Three words: location, cosy and chic!",
    "date":"2024-08-10T08:11:23.283Z",
    "city": { "name": "Hamburg", "location": { "latitude": 53.550341, "longitude": 10.000654 } },
-   "previewImage":"https://16.design.htmlacademy.pro/static/hotel/8.jpg",
+   "previewImage":"16.design.htmlacademy.pro/static/hotel/8.jpg",
    "images":[
       "https://16.design.htmlacademy.pro/static/hotel/1.jpg",
       "https://16.design.htmlacademy.pro/static/hotel/11.jpg",
       "https://16.design.htmlacademy.pro/static/hotel/7.jpg",
       "https://16.design.htmlacademy.pro/static/hotel/5.jpg",
       "https://16.design.htmlacademy.pro/static/hotel/6.jpg",
-      "https://16.design.htmlacademy.pro/static/hotel/10.jpg"
+      "16.design.htmlacademy.pro/static/hotel/10.jpg"
    ],
    "isPremium":false,
    "type":"house",
-   "bedrooms":3,
+   "bedrooms":33,
    "maxAdults":4,
    "price":100500,
    "goods":[
       "Laptop friendly",
-      "Breakfast"
+      "Breakfast1"
    ],
    "hostId":"670fcfd076bd4a5d2cbce8d0",
    "location":{
@@ -78,7 +78,7 @@ Content-Type: application/json
 }
 
 ### Удаление предложения
-DELETE http://localhost:5000/offers/6704fc4a2ea09e306cc86233 HTTP/1.1
+DELETE http://localhost:5000/offers/67168973d5f962065a31469d HTTP/1.1
 
 ### Премиальные предложения города (кол-во по умолчанию)
 GET http://localhost:5000/premium/hamburg HTTP/1.1

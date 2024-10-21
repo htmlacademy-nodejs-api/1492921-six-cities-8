@@ -14,6 +14,7 @@ import {
   HttpError,
   HttpMethod,
   TRequestQueryLimit,
+  ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
 } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/logger.interface.js';
@@ -22,7 +23,7 @@ import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
 import { USER_ID, UserController } from '../user/user.controller.js';
-import { DefaultCount } from './index.js';
+import { CreateOfferDto, DefaultCount } from './index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -48,6 +49,7 @@ export class OfferController extends BaseController {
       path: '/offers',
       method: HttpMethod.Post,
       handler: this.create,
+      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)],
     });
 
     this.addRoute({

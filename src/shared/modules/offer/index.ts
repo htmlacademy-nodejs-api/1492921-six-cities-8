@@ -9,5 +9,6 @@ export { DefaultOfferService } from './default-offer.service.js';
 export { createOfferContainer } from './offer.container.js';
 export { DefaultCount } from './offer.constant.js';
 export { OfferController } from './offer.controller.js';
+export { CreateOfferValidationMessage } from './dto/create-offer.messages.js';
 
 export type OfferEntityDocument = DocumentType<OfferEntity>;

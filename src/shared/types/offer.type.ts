@@ -9,15 +9,11 @@ type TPoint = {
   longitude: number;
 };
 
-// type Location = Point & {
-//   zoom: number;
-// };
-
 type TOffer = {
   //id: string;
   title: string;
   description: string;
-  date: string;
+  date: Date;
   city: TCity;
   previewImage: string;
   images: string[];
