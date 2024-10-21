@@ -23,7 +23,7 @@ import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
 import { USER_ID, UserController } from '../user/user.controller.js';
-import { CreateOfferDto, DefaultCount } from './index.js';
+import { CreateOfferDto, DefaultCount, UpdateOfferDto } from './index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -56,7 +56,10 @@ export class OfferController extends BaseController {
       path: '/offers/:offerId',
       method: HttpMethod.Patch,
       handler: this.update,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')],
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new ValidateDtoMiddleware(UpdateOfferDto),
+      ],
     });
 
     this.addRoute({
