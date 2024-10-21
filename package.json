@@ -2,7 +2,11 @@
   "name": "six-cities",
   "version": "7.0.0",
   "description": "Проект «Шесть городов» от HTML Academy",
-  "keywords": ["rest", "api", "node.js"],
+  "keywords": [
+    "rest",
+    "api",
+    "node.js"
+  ],
   "main": "main.js",
   "scripts": {
     "start": "npm run build && node ./dist/main.rest.js",
@@ -41,6 +45,7 @@
     "@typegoose/typegoose": "12.8.0",
     "chalk": "5.3.0",
     "class-transformer": "0.5.1",
+    "class-validator": "0.14.1",
     "convict": "6.2.4",
     "convict-format-with-validator": "6.2.0",
     "dayjs": "1.11.13",

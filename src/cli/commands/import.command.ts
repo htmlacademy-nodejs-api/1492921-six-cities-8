@@ -32,6 +32,7 @@ import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from './command.constant.js';
 import { getMongoURI } from '../../shared/helpers/index.js';
 import { CommentModel } from '../../shared/modules/comment/comment.entity.js';
 import { DefaultFavoriteService } from '../../shared/modules/favorite/default-favorite.service.js';
+import { DefaultCommentService } from '../../shared/modules/comment/default-comment.service.js';
 export class ImportCommand implements ICommand {
   private onImportedUser = async (
     user: TImportObjects,
@@ -81,6 +82,7 @@ export class ImportCommand implements ICommand {
       this.logger,
       OfferModel,
       CommentModel,
+      new DefaultCommentService(this.logger, CommentModel),
       new DefaultFavoriteService(this.logger, OfferModel, UserModel)
     );
     this.userService = new DefaultUserService(this.logger, UserModel);

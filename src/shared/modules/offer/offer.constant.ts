@@ -3,6 +3,7 @@ import { TRange } from '../../types/range.type.js';
 const DefaultCount = {
   offer: 60,
   premium: 3,
+  comment: 50,
 } as const;
 
 const ImagesLimit: TRange = { min: 6, max: 6 } as const;
