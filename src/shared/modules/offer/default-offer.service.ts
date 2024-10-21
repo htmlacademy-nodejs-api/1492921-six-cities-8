@@ -11,7 +11,7 @@ import {
   OfferEntityDocument,
   UpdateOfferDto,
 } from './index.js';
-import { CommentEntity } from '../comment/index.js';
+import { CommentEntity, ICommentService } from '../comment/index.js';
 import { IFavoriteService } from '../favorite/favorite-service.interface.js';
 @injectable()
 export class DefaultOfferService implements IOfferService {
@@ -21,6 +21,8 @@ export class DefaultOfferService implements IOfferService {
     private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.CommentModel)
     private readonly commentModel: types.ModelType<CommentEntity>,
+    @inject(Component.CommentService)
+    private readonly commentService: ICommentService,
     @inject(Component.FavoriteService)
     private readonly favoriteService: IFavoriteService
   ) {}
@@ -48,9 +50,10 @@ export class DefaultOfferService implements IOfferService {
 
   public async find(
     userId: string,
-    count: number = DefaultCount.offer
+    limit?: number
   ): Promise<OfferEntityDocument[]> {
     const favorites = await this.favoriteService.getFavorites(userId);
+    console.log(limit);
     return this.offerModel
       .aggregate([
         {
@@ -83,13 +86,15 @@ export class DefaultOfferService implements IOfferService {
         { $unset: ['comments'] },
       ])
       .sort({ date: SortType.Down })
-      .limit(count)
+      .limit(limit ?? DefaultCount.offer)
       .exec();
   }
 
   public async deleteById(
     offerId: string
   ): Promise<OfferEntityDocument | null> {
+    await this.commentService.deleteByOfferId(offerId);
+    //to-do Нужно решить что делать с избранными пользователя
     const result = this.offerModel.findByIdAndDelete(offerId).exec();
     this.logger.info(`Предложение аренды с id = ${offerId} удалено`);
     return result;
@@ -110,7 +115,7 @@ export class DefaultOfferService implements IOfferService {
   public async findPremium(
     cityName: TCityName,
     userId: string,
-    count: number = DefaultCount.premium
+    limit?: number
   ): Promise<OfferEntityDocument[]> {
     const favorites = await this.favoriteService.getFavorites(userId);
     return this.offerModel
@@ -146,7 +151,7 @@ export class DefaultOfferService implements IOfferService {
         { $unset: ['comments'] },
       ])
       .sort({ date: SortType.Down })
-      .limit(count)
+      .limit(limit ?? DefaultCount.premium)
       .exec();
   }
 

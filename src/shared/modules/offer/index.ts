@@ -8,5 +8,6 @@ export { IOfferService } from './offer-service.interface.js';
 export { DefaultOfferService } from './default-offer.service.js';
 export { createOfferContainer } from './offer.container.js';
 export { DefaultCount } from './offer.constant.js';
+export { OfferController } from './offer.controller.js';
 
 export type OfferEntityDocument = DocumentType<OfferEntity>;

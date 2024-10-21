@@ -1,5 +1,5 @@
 export class CreateCommentDto {
-  public text: string;
+  public comment: string;
   public rating: number;
   public offerId: string;
   public userId: string;

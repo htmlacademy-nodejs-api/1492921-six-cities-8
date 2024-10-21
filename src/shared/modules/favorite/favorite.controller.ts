@@ -12,10 +12,11 @@ import { IFavoriteService } from './index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { OfferListRdo } from '../offer/rdo/offer-list.rdo.js';
 import { UserController } from '../user/index.js';
-import { OfferController } from '../offer/offer-controller.js';
+import { OfferController } from '../offer/offer.controller.js';
 import { OfferRdo } from '../offer/rdo/offer.rdo.js';
 import { StatusCodes } from 'http-status-codes';
 import { USER_ID } from '../user/user.controller.js';
+import { TParamOfferId } from '../offer/type/param-offer.type.js';
 @injectable()
 export class FavoriteController extends BaseController {
   constructor(
@@ -52,8 +53,11 @@ export class FavoriteController extends BaseController {
     }
   }
 
-  public async add(req: Request, res: Response): Promise<void> {
-    const offerId = req.params.offerId as string;
+  public async add(
+    { params }: Request<TParamOfferId>,
+    res: Response
+  ): Promise<void> {
+    const { offerId } = params;
     if (this.userController.checkUser('123')) {
       if (await this.offerController.checkOffer(offerId)) {
         if (await this.favoriteService.exists(USER_ID, offerId)) {
@@ -69,8 +73,11 @@ export class FavoriteController extends BaseController {
     }
   }
 
-  public async delete(req: Request, res: Response): Promise<void> {
-    const offerId = req.params.offerId as string;
+  public async delete(
+    { params }: Request<TParamOfferId>,
+    res: Response
+  ): Promise<void> {
+    const { offerId } = params;
     if (this.userController.checkUser('123')) {
       if (await this.offerController.checkOffer(offerId)) {
         if (!(await this.favoriteService.exists(USER_ID, offerId))) {

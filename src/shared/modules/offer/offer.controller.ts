@@ -7,11 +7,13 @@ import { OfferRdo } from './rdo/offer.rdo.js';
 import {
   TCreateOfferRequest,
   TUpdateOfferRequest,
-} from './offer-request.type.js';
+} from './type/offer-request.type.js';
+import { TParamCityName, TParamOfferId } from './type/param-offer.type.js';
 import {
   BaseController,
   HttpError,
   HttpMethod,
+  TRequestQueryLimit,
 } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/logger.interface.js';
 import { Component, TCityName } from '../../types/index.js';
@@ -19,6 +21,8 @@ import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
 import { USER_ID, UserController } from '../user/user.controller.js';
+import { DefaultCount } from './index.js';
+
 @injectable()
 export class OfferController extends BaseController {
   constructor(
@@ -34,39 +38,39 @@ export class OfferController extends BaseController {
     this.logger.info('Регистрация маршрутов для OfferController ...');
 
     this.addRoute({
-      path: '/',
+      path: '/offers',
       method: HttpMethod.Get,
       handler: this.index,
     });
 
     this.addRoute({
-      path: '/',
+      path: '/offers',
       method: HttpMethod.Post,
       handler: this.create,
     });
 
     this.addRoute({
-      path: '/:offerId',
+      path: '/offers/:offerId',
       method: HttpMethod.Patch,
       handler: this.update,
     });
 
     this.addRoute({
-      path: '/:offerId',
+      path: '/offers/:offerId',
       method: HttpMethod.Delete,
       handler: this.delete,
     });
 
     this.addRoute({
-      path: '/premium',
+      path: '/offers/:offerId',
       method: HttpMethod.Get,
-      handler: this.getPremium,
+      handler: this.show,
     });
 
     this.addRoute({
-      path: '/:offerId',
+      path: '/premium/:cityName',
       method: HttpMethod.Get,
-      handler: this.getOffer,
+      handler: this.findPremium,
     });
   }
 
@@ -83,8 +87,14 @@ export class OfferController extends BaseController {
     return true;
   }
 
-  public async index(_req: Request, res: Response): Promise<void> {
-    const offers = await this.offerService.find(USER_ID);
+  public async index(
+    { query }: Request<unknown, unknown, unknown, TRequestQueryLimit>,
+    res: Response
+  ): Promise<void> {
+    const offers = await this.offerService.find(
+      USER_ID,
+      query.limit === undefined ? DefaultCount.premium : Number(query.limit)
+    );
     this.ok(res, fillDTO(OfferListRdo, offers));
   }
 
@@ -119,11 +129,11 @@ export class OfferController extends BaseController {
     }
   }
 
-  public async update(req: TUpdateOfferRequest, res: Response): Promise<void> {
-    const { params, body } = req;
-    const offerId = params.offerId as string;
-
-    this.checkOffer(offerId);
+  public async update(
+    { body, params }: TUpdateOfferRequest,
+    res: Response
+  ): Promise<void> {
+    const { offerId } = params;
 
     if (
       !body.title &&
@@ -159,37 +169,37 @@ export class OfferController extends BaseController {
     }
   }
 
-  public async delete(req: TUpdateOfferRequest, res: Response) {
-    const offerId = req.params.offerId as string;
+  public async delete(
+    { params }: Request<TParamOfferId>,
+    res: Response
+  ): Promise<void> {
+    const { offerId } = params;
     if (await this.checkOffer(offerId)) {
       await this.offerService.deleteById(offerId);
       this.ok(res, null);
     }
   }
 
-  public async getOffer(
-    req: TUpdateOfferRequest,
+  public async show(
+    { params }: Request<TParamOfferId>,
     res: Response
   ): Promise<void> {
-    const offerId = req.params.offerId as string;
+    const { offerId } = params;
     if (await this.checkOffer(offerId)) {
       const offer = await this.offerService.findById(offerId);
       this.ok(res, fillDTO(OfferRdo, offer));
     }
   }
 
-  public async getPremium(req: Request, res: Response): Promise<void> {
-    const param = req.query.city as string;
-    if (!param) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Ошибка в параметре запроса',
-        'OfferController'
-      );
-    }
-
+  public async findPremium(
+    {
+      params,
+      query,
+    }: Request<TParamCityName, unknown, unknown, TRequestQueryLimit>,
+    res: Response
+  ): Promise<void> {
     const cityName = cityNames.find(
-      (city) => city.toLowerCase() === param.toLowerCase()
+      (city) => city.toLowerCase() === params.cityName.toLowerCase()
     );
     if (!cityName) {
       throw new HttpError(
@@ -198,10 +208,10 @@ export class OfferController extends BaseController {
         'OfferController'
       );
     }
-
     const offers = await this.offerService.findPremium(
       cityName as TCityName,
-      USER_ID
+      USER_ID,
+      query.limit === undefined ? DefaultCount.premium : Number(query.limit)
     );
     this.ok(res, fillDTO(OfferListRdo, offers));
   }
