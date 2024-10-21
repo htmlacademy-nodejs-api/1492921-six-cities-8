@@ -16,6 +16,7 @@ import { IConfig, TRestSchema } from '../../libs/config/index.js';
 import { fillDTO, generateRandomValue } from '../../helpers/index.js';
 import { UserRdo } from './rdo/user.rdo.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
+import { LoginUserDto } from './dto/login-user.dto.js';
 
 // Временно константа для отладки, пока не научились считывать данные о пользователе из токена
 export const USER_ID = '6713ca5c6dc3e0bcd4ada1cd';
@@ -46,6 +47,7 @@ export class UserController extends BaseController {
       path: '/login',
       method: HttpMethod.Post,
       handler: this.login,
+      middlewares: [new ValidateDtoMiddleware(LoginUserDto)],
     });
     this.addRoute({
       path: '/login',
