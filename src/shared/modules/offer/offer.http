@@ -85,6 +85,7 @@ GET http://localhost:5000/premium/hamburg HTTP/1.1
 
 ### Премиальные предложения города (некорректный город)
 GET http://localhost:5000/premium/omsk HTTP/1.1
+
 ### Премиальные предложения города (указанное кол-во)
 GET http://localhost:5000/premium/hamburg?limit=1 HTTP/1.1
 

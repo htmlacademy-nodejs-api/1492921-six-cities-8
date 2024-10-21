@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
-import { mongoose, types } from '@typegoose/typegoose';
+import { types } from '@typegoose/typegoose';
+import mongoose from 'mongoose';
 
 import { Component, SortType, TCityName } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
@@ -13,6 +14,7 @@ import {
 } from './index.js';
 import { CommentEntity, ICommentService } from '../comment/index.js';
 import { IFavoriteService } from '../favorite/favorite-service.interface.js';
+
 @injectable()
 export class DefaultOfferService implements IOfferService {
   constructor(
@@ -160,14 +162,17 @@ export class DefaultOfferService implements IOfferService {
   }
 
   async updateRating(offerId: string): Promise<OfferEntityDocument | null> {
-    const [{ averageRating }] = await this.commentModel.aggregate([
-      { $match: { offerId } },
+    const [{ averageRating }] = await this.commentModel.aggregate<
+      Record<string, number>
+    >([
+      { $match: { offerId: new mongoose.Types.ObjectId(offerId) } },
       { $group: { _id: null, averageRating: { $avg: '$rating' } } },
     ]);
-
+    const offerRating = (averageRating ?? 0).toFixed(1);
+    console.log(offerRating);
     return this.offerModel
-      .findByIdAndUpdate(offerId, [{ rating: averageRating }], { new: true })
-      .populate(['userId'])
+      .findByIdAndUpdate(offerId, { rating: offerRating }, { new: true })
+      .populate('hostId')
       .exec();
   }
 }
