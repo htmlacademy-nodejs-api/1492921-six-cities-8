@@ -144,28 +144,29 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     const { offerId } = params;
 
-    if (
-      !body.title &&
-      !body.description &&
-      !body.date &&
-      !body.city &&
-      !body.previewImage &&
-      !body.images &&
-      !body.isPremium &&
-      !body.type &&
-      !body.bedrooms &&
-      !body.maxAdults &&
-      !body.price &&
-      !body.goods &&
-      !body.hostId &&
-      !body.location
-    ) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Ошибка тела запроса',
-        'OfferController'
-      );
-    }
+    // НЕ ПОНЯТНО почему не видно полей
+    // if (
+    //   !body.title &&
+    //   !body.description &&
+    //   !body.date &&
+    //   !body.city &&
+    //   !body.previewImage &&
+    //   !body.images &&
+    //   !body.isPremium &&
+    //   !body.type &&
+    //   !body.bedrooms &&
+    //   !body.maxAdults &&
+    //   !body.price &&
+    //   !body.goods &&
+    //   !body.hostId &&
+    //   !body.location
+    // ) {
+    //   throw new HttpError(
+    //     StatusCodes.BAD_REQUEST,
+    //     'Ошибка тела запроса',
+    //     'OfferController'
+    //   );
+    // }
     if (
       this.userController.checkUser('token') &&
       (await this.checkOffer(offerId))
