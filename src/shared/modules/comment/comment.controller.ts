@@ -5,6 +5,7 @@ import {
   BaseController,
   HttpMethod,
   TRequestQueryLimit,
+  ValidateObjectIdMiddleware,
 } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
@@ -38,11 +39,13 @@ export default class CommentController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Get,
       handler: this.index,
+      middlewares: [new ValidateObjectIdMiddleware('offerId')],
     });
     this.addRoute({
       path: '/:offerId',
       method: HttpMethod.Post,
       handler: this.create,
+      middlewares: [new ValidateObjectIdMiddleware('offerId')],
     });
   }
 

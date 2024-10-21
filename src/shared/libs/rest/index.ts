@@ -8,4 +8,5 @@ export { TRequestParams } from './types/request-params.type.js';
 export { TRequestBody } from './types/request-body.type.js';
 export { TRequestQueryLimit } from './types/request-query.type.js';
 export { HttpError } from './errors/index.js';
-export { Middleware } from './middleware/middleware.interface.js';
+export { IMiddleware } from './middleware/middleware.interface.js';
+export { ValidateObjectIdMiddleware } from './middleware/validate-objectid.middleware.js';
