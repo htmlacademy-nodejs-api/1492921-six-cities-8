@@ -5,12 +5,13 @@ import {
   BaseController,
   HttpMethod,
   TRequestQueryLimit,
+  ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
 } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { fillDTO } from '../../helpers/index.js';
-import { CommentRdo, ICommentService } from './index.js';
+import { CommentRdo, CreateCommentDto, ICommentService } from './index.js';
 import {
   DefaultCount,
   IOfferService,
@@ -45,7 +46,10 @@ export default class CommentController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')],
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new ValidateDtoMiddleware(CreateCommentDto),
+      ],
     });
   }
 
