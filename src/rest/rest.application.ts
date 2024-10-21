@@ -22,7 +22,9 @@ export class RestApplication {
     @inject(Component.UserController)
     private readonly userController: IController,
     @inject(Component.OfferController)
-    private readonly offerController: IController
+    private readonly offerController: IController,
+    @inject(Component.CommentController)
+    private readonly commentController: IController
   ) {
     this.server = express();
   }
@@ -47,7 +49,8 @@ export class RestApplication {
   private async _initControllers() {
     this.server.use('/favorites', this.favoriteController.router);
     this.server.use('/users', this.userController.router);
-    this.server.use('/offers', this.offerController.router);
+    this.server.use('/', this.offerController.router);
+    this.server.use('/comments', this.commentController.router);
   }
 
   private async _initMiddleware() {
@@ -86,7 +89,7 @@ export class RestApplication {
     this.logger.info('Попытка запустить сервер ...');
     await this._initServer();
     this.logger.info(
-      `🚀 Сервер запущен и ожидает обращений по адресу  http://localhost:${this.config.get('PORT')}`
+      `🚀 Сервер запущен и ожидает обращений по адресу  http://${this.config.get('DB_HOST')}:${this.config.get('PORT')}`
     );
   }
 }

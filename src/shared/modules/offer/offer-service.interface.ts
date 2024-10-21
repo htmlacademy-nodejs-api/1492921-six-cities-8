@@ -6,7 +6,7 @@ import { OfferEntityDocument } from './index.js';
 export interface IOfferService {
   create(dto: CreateOfferDto): Promise<OfferEntityDocument>;
   findById(offerId: string): Promise<OfferEntityDocument | null>;
-  find(userId: string): Promise<OfferEntityDocument[]>;
+  find(userId: string, limit?: number): Promise<OfferEntityDocument[]>;
   deleteById(offerId: string): Promise<OfferEntityDocument | null>;
   updateById(
     offerId: string,
@@ -14,7 +14,8 @@ export interface IOfferService {
   ): Promise<OfferEntityDocument | null>;
   findPremium(
     cityName: TCityName,
-    userId: string
+    userId: string,
+    limit?: number
   ): Promise<OfferEntityDocument[]>;
   exists(documentId: string): Promise<boolean>;
   updateRating(offerId: string): Promise<OfferEntityDocument | null>;

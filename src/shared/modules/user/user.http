@@ -5,7 +5,7 @@ Content-Type: application/json
 
 {
   "name": "Angella",
-  "email": "Angella@mail.ru",
+  "email": "Angella",
   "avatarPath": "https://16.design.htmlacademy.pro/static/avatar/1.jpg",
   "password": "TestPassword1",
   "isPro": true
