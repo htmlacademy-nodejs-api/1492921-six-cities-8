@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import { Component, SortType } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { IFavoriteService } from './index.js';
-import { OfferEntity, OfferEntityDocument } from '../offer/index.js';
+import { OfferEntity, TOfferEntityDocument } from '../offer/index.js';
 import { UserEntity } from '../user/index.js';
 @injectable()
 export class DefaultFavoriteService implements IFavoriteService {
@@ -28,7 +28,7 @@ export class DefaultFavoriteService implements IFavoriteService {
   public async addFavorite(
     userId: string,
     offerId: string
-  ): Promise<OfferEntityDocument | null> {
+  ): Promise<TOfferEntityDocument | null> {
     if (!(await this.exists(userId, offerId))) {
       const favorites = await this.getFavorites(userId);
       const offer = await this.offerModel.findById(offerId);
@@ -50,7 +50,7 @@ export class DefaultFavoriteService implements IFavoriteService {
   public async delFavorite(
     userId: string,
     offerId: string
-  ): Promise<OfferEntityDocument | null> {
+  ): Promise<TOfferEntityDocument | null> {
     if (await this.exists(userId, offerId)) {
       const favorites = await this.getFavorites(userId);
       const offer = await this.offerModel.findById(offerId);
@@ -70,7 +70,7 @@ export class DefaultFavoriteService implements IFavoriteService {
     return null;
   }
 
-  public async find(userId: string): Promise<OfferEntityDocument[]> {
+  public async find(userId: string): Promise<TOfferEntityDocument[]> {
     const favorites = await this.getFavorites(userId);
     if (favorites.length === 0) {
       return [];

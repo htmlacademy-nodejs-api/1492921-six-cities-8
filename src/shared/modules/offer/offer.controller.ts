@@ -11,6 +11,7 @@ import {
 import { TParamCityName, TParamOfferId } from './type/param-offer.type.js';
 import {
   BaseController,
+  DocumentExistsMiddleware,
   HttpError,
   HttpMethod,
   TRequestQueryLimit,
@@ -22,11 +23,11 @@ import { Component, TCityName } from '../../types/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
-import { USER_ID, UserController } from '../user/user.controller.js';
+import UserController, { USER_ID } from '../user/user.controller.js';
 import { CreateOfferDto, DefaultCount, UpdateOfferDto } from './index.js';
 
 @injectable()
-export class OfferController extends BaseController {
+export default class OfferController extends BaseController {
   constructor(
     @inject(Component.Logger)
     protected readonly logger: ILogger,
@@ -59,6 +60,7 @@ export class OfferController extends BaseController {
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
     });
 
@@ -66,14 +68,20 @@ export class OfferController extends BaseController {
       path: '/offers/:offerId',
       method: HttpMethod.Delete,
       handler: this.delete,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')],
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
+      ],
     });
 
     this.addRoute({
       path: '/offers/:offerId',
       method: HttpMethod.Get,
       handler: this.show,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')],
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
+      ],
     });
 
     this.addRoute({
@@ -83,18 +91,18 @@ export class OfferController extends BaseController {
     });
   }
 
-  public async checkOffer(offerId: string): Promise<boolean> {
-    const offer = await this.offerService.findById(offerId);
-    if (!offer) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        'Предложение по аренде не найдено',
-        'OfferController'
-      );
-      return false;
-    }
-    return true;
-  }
+  // public async checkOffer(offerId: string): Promise<boolean> {
+  //   const offer = await this.offerService.findById(offerId);
+  //   if (!offer) {
+  //     throw new HttpError(
+  //       StatusCodes.NOT_FOUND,
+  //       'Предложение по аренде не найдено',
+  //       'OfferController'
+  //     );
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   public async index(
     { query }: Request<unknown, unknown, unknown, TRequestQueryLimit>,
@@ -139,37 +147,36 @@ export class OfferController extends BaseController {
   }
 
   public async update(
-    { body, params }: TUpdateOfferRequest,
+    { params, body }: TUpdateOfferRequest,
     res: Response
   ): Promise<void> {
     const { offerId } = params;
 
-    // НЕ ПОНЯТНО почему не видно полей
-    // if (
-    //   !body.title &&
-    //   !body.description &&
-    //   !body.date &&
-    //   !body.city &&
-    //   !body.previewImage &&
-    //   !body.images &&
-    //   !body.isPremium &&
-    //   !body.type &&
-    //   !body.bedrooms &&
-    //   !body.maxAdults &&
-    //   !body.price &&
-    //   !body.goods &&
-    //   !body.hostId &&
-    //   !body.location
-    // ) {
-    //   throw new HttpError(
-    //     StatusCodes.BAD_REQUEST,
-    //     'Ошибка тела запроса',
-    //     'OfferController'
-    //   );
-    // }
     if (
-      this.userController.checkUser('token') &&
-      (await this.checkOffer(offerId))
+      !body.title &&
+      !body.description &&
+      !body.date &&
+      !body.city &&
+      !body.previewImage &&
+      !body.images &&
+      !body.isPremium &&
+      !body.type &&
+      !body.bedrooms &&
+      !body.maxAdults &&
+      !body.price &&
+      !body.goods &&
+      !body.hostId &&
+      !body.location
+    ) {
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Ошибка тела запроса',
+        'OfferController'
+      );
+    }
+    if (
+      this.userController.checkUser('token')
+      //&& (await this.checkOffer(offerId))
     ) {
       const result = await this.offerService.updateById(offerId, body);
       if (result) {
@@ -184,10 +191,10 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    if (await this.checkOffer(offerId)) {
-      await this.offerService.deleteById(offerId);
-      this.ok(res, null);
-    }
+    //f (await this.checkOffer(offerId)) {
+    await this.offerService.deleteById(offerId);
+    this.ok(res, null);
+    //}
   }
 
   public async show(
@@ -195,10 +202,10 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    if (await this.checkOffer(offerId)) {
-      const offer = await this.offerService.findById(offerId);
-      this.ok(res, fillDTO(OfferRdo, offer));
-    }
+    //if (await this.checkOffer(offerId)) {
+    const offer = await this.offerService.findById(offerId);
+    this.ok(res, fillDTO(OfferRdo, offer));
+    //}
   }
 
   public async findPremium(

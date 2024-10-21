@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 
 import {
   BaseController,
+  DocumentExistsMiddleware,
   HttpMethod,
   TRequestQueryLimit,
   ValidateDtoMiddleware,
@@ -12,11 +13,7 @@ import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { CommentRdo, CreateCommentDto, ICommentService } from './index.js';
-import {
-  DefaultCount,
-  IOfferService,
-  OfferController,
-} from '../offer/index.js';
+import { DefaultCount, IOfferService } from '../offer/index.js';
 import { TParamOfferId } from '../offer/type/param-offer.type.js';
 import { USER_ID } from '../user/user.controller.js';
 import { TCreateCommentRequest } from './comment-request.type.js';
@@ -29,9 +26,7 @@ export default class CommentController extends BaseController {
     @inject(Component.CommentService)
     private readonly commentService: ICommentService,
     @inject(Component.OfferService)
-    private readonly offerService: IOfferService,
-    @inject(Component.OfferController)
-    private readonly offerController: OfferController
+    private readonly offerService: IOfferService
   ) {
     super(logger);
 
@@ -40,7 +35,10 @@ export default class CommentController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Get,
       handler: this.index,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')],
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
+      ],
     });
     this.addRoute({
       path: '/:offerId',
@@ -49,6 +47,7 @@ export default class CommentController extends BaseController {
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(CreateCommentDto),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
     });
   }
@@ -61,13 +60,13 @@ export default class CommentController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    if (await this.offerController.checkOffer(offerId)) {
-      const comments = await this.commentService.findByOfferId(
-        offerId,
-        query.limit === undefined ? DefaultCount.comment : Number(query.limit)
-      );
-      this.ok(res, fillDTO(CommentRdo, comments));
-    }
+    //if (await this.offerController.checkOffer(offerId)) {
+    const comments = await this.commentService.findByOfferId(
+      offerId,
+      query.limit === undefined ? DefaultCount.comment : Number(query.limit)
+    );
+    this.ok(res, fillDTO(CommentRdo, comments));
+    //}
   }
 
   public async create(
@@ -75,14 +74,14 @@ export default class CommentController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    if (await this.offerController.checkOffer(offerId)) {
-      const comment = await this.commentService.create({
-        ...body,
-        offerId: offerId,
-        userId: USER_ID,
-      });
-      await this.offerService.updateRating(offerId);
-      this.created(res, fillDTO(CommentRdo, comment));
-    }
+    //if (await this.offerController.checkOffer(offerId)) {
+    const comment = await this.commentService.create({
+      ...body,
+      offerId: offerId,
+      userId: USER_ID,
+    });
+    await this.offerService.updateRating(offerId);
+    this.created(res, fillDTO(CommentRdo, comment));
+    //}
   }
 }

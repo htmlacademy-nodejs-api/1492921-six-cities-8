@@ -21,7 +21,7 @@ import { LoginUserDto } from './dto/login-user.dto.js';
 // Временно константа для отладки, пока не научились считывать данные о пользователе из токена
 export const USER_ID = '6713ca5c6dc3e0bcd4ada1cd';
 @injectable()
-export class UserController extends BaseController {
+export default class UserController extends BaseController {
   private salt: string;
 
   constructor(

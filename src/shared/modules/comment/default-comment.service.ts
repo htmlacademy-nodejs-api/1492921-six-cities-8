@@ -1,8 +1,13 @@
 import { inject, injectable } from 'inversify';
-import { DocumentType, types } from '@typegoose/typegoose';
+import { types } from '@typegoose/typegoose';
 
 import { Component } from '../../types/index.js';
-import { CommentEntity, CreateCommentDto, ICommentService } from './index.js';
+import {
+  CommentEntity,
+  CreateCommentDto,
+  ICommentService,
+  TCommentEntityDocument,
+} from './index.js';
 import { DefaultCount } from '../offer/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 
@@ -14,9 +19,7 @@ export class DefaultCommentService implements ICommentService {
     private readonly commentModel: types.ModelType<CommentEntity>
   ) {}
 
-  public async create(
-    dto: CreateCommentDto
-  ): Promise<DocumentType<CommentEntity>> {
+  public async create(dto: CreateCommentDto): Promise<TCommentEntityDocument> {
     const comment = await this.commentModel.create(dto);
     this.logger.info(
       `Комментарий с id = ${comment.id} добавлен к предложению с id = ${dto.offerId}`
@@ -27,7 +30,7 @@ export class DefaultCommentService implements ICommentService {
   public async findByOfferId(
     offerId: string,
     limit?: number
-  ): Promise<DocumentType<CommentEntity>[]> {
+  ): Promise<TCommentEntityDocument[]> {
     const limitComments = limit ?? DefaultCount.comment;
     return this.commentModel
       .find({ offerId }, {}, { limitComments })
