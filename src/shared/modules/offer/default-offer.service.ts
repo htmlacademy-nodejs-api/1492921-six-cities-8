@@ -35,7 +35,10 @@ export class DefaultOfferService implements IOfferService {
     return result;
   }
 
-  public async findById(offerId: string): Promise<TOfferEntityDocument | null> {
+  public async findById(
+    offerId: string,
+    userId: string
+  ): Promise<TOfferEntityDocument | null> {
     const [comments] = await this.commentModel.aggregate([
       { $match: { offerId: new mongoose.Types.ObjectId(offerId) } },
       { $count: 'count' },
@@ -46,6 +49,8 @@ export class DefaultOfferService implements IOfferService {
       .exec();
     if (result) {
       result.commentsCount = comments?.count ?? 0;
+      const favorites = await this.favoriteService.getFavorites(userId);
+      result.isFavorite = favorites.includes(offerId);
     }
     return result;
   }

@@ -6,7 +6,10 @@ import { IDocumentExists } from '../../types/index.js';
 
 export interface IOfferService extends IDocumentExists {
   create(dto: CreateOfferDto): Promise<TOfferEntityDocument>;
-  findById(offerId: string): Promise<TOfferEntityDocument | null>;
+  findById(
+    offerId: string,
+    userId: string
+  ): Promise<TOfferEntityDocument | null>;
   find(userId: string, limit?: number): Promise<TOfferEntityDocument[]>;
   deleteById(offerId: string): Promise<TOfferEntityDocument | null>;
   updateById(

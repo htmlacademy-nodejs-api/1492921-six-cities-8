@@ -59,7 +59,7 @@ export default class UserController extends BaseController {
     this.addRoute({
       path: '/login',
       method: HttpMethod.Get,
-      handler: this.getState,
+      handler: this.checkAuthenticate,
     });
     this.addRoute({
       path: '/logout',
@@ -132,11 +132,21 @@ export default class UserController extends BaseController {
     this.ok(res, responseData);
   }
 
-  public async getState(
-    _req: TLoginUserRequest,
-    _res: Response
-  ): Promise<void> {
-    // Код обработчика
+  public async checkAuthenticate(
+    { tokenPayload: { email } }: Request,
+    res: Response
+  ) {
+    const foundedUser = await this.userService.findByEmail(email);
+
+    if (!foundedUser) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    this.ok(res, fillDTO(LoggedUserRdo, foundedUser));
   }
 
   public logout(_req: TLoginUserRequest, _res: Response): void {

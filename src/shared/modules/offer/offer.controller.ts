@@ -14,6 +14,8 @@ import {
   DocumentExistsMiddleware,
   HttpError,
   HttpMethod,
+  PrivateRouteMiddleware,
+  TRequestParams,
   TRequestQueryLimit,
   ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
@@ -23,7 +25,6 @@ import { Component, TCityName } from '../../types/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
-import UserController, { USER_ID } from '../user/user.controller.js';
 import { CreateOfferDto, DefaultCount, UpdateOfferDto } from './index.js';
 
 @injectable()
@@ -32,9 +33,7 @@ export default class OfferController extends BaseController {
     @inject(Component.Logger)
     protected readonly logger: ILogger,
     @inject(Component.OfferService)
-    private readonly offerService: IOfferService,
-    @inject(Component.UserController)
-    private readonly userController: UserController
+    private readonly offerService: IOfferService
   ) {
     super(logger);
 
@@ -50,7 +49,10 @@ export default class OfferController extends BaseController {
       path: '/offers',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)],
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateDtoMiddleware(CreateOfferDto),
+      ],
     });
 
     this.addRoute({
@@ -59,6 +61,7 @@ export default class OfferController extends BaseController {
       handler: this.update,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
@@ -70,6 +73,7 @@ export default class OfferController extends BaseController {
       handler: this.delete,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
+        new PrivateRouteMiddleware(),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
     });
@@ -91,32 +95,24 @@ export default class OfferController extends BaseController {
     });
   }
 
-  // public async checkOffer(offerId: string): Promise<boolean> {
-  //   const offer = await this.offerService.findById(offerId);
-  //   if (!offer) {
-  //     throw new HttpError(
-  //       StatusCodes.NOT_FOUND,
-  //       'Предложение по аренде не найдено',
-  //       'OfferController'
-  //     );
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
   public async index(
-    { query }: Request<unknown, unknown, unknown, TRequestQueryLimit>,
+    {
+      tokenPayload,
+      query,
+    }: Request<TRequestParams, unknown, unknown, TRequestQueryLimit>,
     res: Response
   ): Promise<void> {
     const offers = await this.offerService.find(
-      USER_ID,
+      tokenPayload.id,
       query.limit === undefined ? DefaultCount.premium : Number(query.limit)
     );
     this.ok(res, fillDTO(OfferListRdo, offers));
   }
 
-  public async create(req: TCreateOfferRequest, res: Response): Promise<void> {
-    const { body } = req;
+  public async create(
+    { body, tokenPayload }: TCreateOfferRequest,
+    res: Response
+  ): Promise<void> {
     if (
       !body.title ||
       !body.description ||
@@ -139,15 +135,16 @@ export default class OfferController extends BaseController {
         'OfferController'
       );
     }
-    if (this.userController.checkUser('token')) {
-      const result = await this.offerService.create(body);
-      const offer = await this.offerService.findById(result.id);
-      this.created(res, fillDTO(OfferRdo, offer));
-    }
+    const result = await this.offerService.create({
+      ...body,
+      hostId: tokenPayload.id,
+    });
+    const offer = await this.offerService.findById(result.id, tokenPayload.id);
+    this.created(res, fillDTO(OfferRdo, offer));
   }
 
   public async update(
-    { params, body }: TUpdateOfferRequest,
+    { params, tokenPayload, body }: TUpdateOfferRequest,
     res: Response
   ): Promise<void> {
     const { offerId } = params;
@@ -155,7 +152,7 @@ export default class OfferController extends BaseController {
     if (
       !body.title &&
       !body.description &&
-      !body.date &&
+      //!body.date &&
       !body.city &&
       !body.previewImage &&
       !body.images &&
@@ -165,7 +162,7 @@ export default class OfferController extends BaseController {
       !body.maxAdults &&
       !body.price &&
       !body.goods &&
-      !body.hostId &&
+      //!body.hostId &&
       !body.location
     ) {
       throw new HttpError(
@@ -174,15 +171,10 @@ export default class OfferController extends BaseController {
         'OfferController'
       );
     }
-    if (
-      this.userController.checkUser('token')
-      //&& (await this.checkOffer(offerId))
-    ) {
-      const result = await this.offerService.updateById(offerId, body);
-      if (result) {
-        const offer = await this.offerService.findById(offerId);
-        this.ok(res, fillDTO(OfferRdo, offer));
-      }
+    const result = await this.offerService.updateById(offerId, body);
+    if (result) {
+      const offer = await this.offerService.findById(offerId, tokenPayload.id);
+      this.ok(res, fillDTO(OfferRdo, offer));
     }
   }
 
@@ -191,26 +183,23 @@ export default class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    //f (await this.checkOffer(offerId)) {
     await this.offerService.deleteById(offerId);
     this.ok(res, null);
-    //}
   }
 
   public async show(
-    { params }: Request<TParamOfferId>,
+    { params, tokenPayload }: Request<TParamOfferId>,
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    //if (await this.checkOffer(offerId)) {
-    const offer = await this.offerService.findById(offerId);
+    const offer = await this.offerService.findById(offerId, tokenPayload.id);
     this.ok(res, fillDTO(OfferRdo, offer));
-    //}
   }
 
   public async findPremium(
     {
       params,
+      tokenPayload,
       query,
     }: Request<TParamCityName, unknown, unknown, TRequestQueryLimit>,
     res: Response
@@ -227,7 +216,7 @@ export default class OfferController extends BaseController {
     }
     const offers = await this.offerService.findPremium(
       cityName as TCityName,
-      USER_ID,
+      tokenPayload.id,
       query.limit === undefined ? DefaultCount.premium : Number(query.limit)
     );
     this.ok(res, fillDTO(OfferListRdo, offers));
