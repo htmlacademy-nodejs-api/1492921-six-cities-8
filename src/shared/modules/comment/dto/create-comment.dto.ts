@@ -26,6 +26,5 @@ export class CreateCommentDto {
   @IsMongoId({ message: CreateCommentMessages.offerId.invalidId })
   public offerId: string;
 
-  @IsMongoId({ message: CreateCommentMessages.userId.invalidId })
   public userId: string;
 }
