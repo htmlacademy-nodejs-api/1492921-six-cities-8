@@ -9,7 +9,7 @@ import {
   DefaultCount,
   IOfferService,
   OfferEntity,
-  OfferEntityDocument,
+  TOfferEntityDocument,
   UpdateOfferDto,
 } from './index.js';
 import { CommentEntity, ICommentService } from '../comment/index.js';
@@ -29,13 +29,13 @@ export class DefaultOfferService implements IOfferService {
     private readonly favoriteService: IFavoriteService
   ) {}
 
-  public async create(dto: CreateOfferDto): Promise<OfferEntityDocument> {
+  public async create(dto: CreateOfferDto): Promise<TOfferEntityDocument> {
     const result = await this.offerModel.create(dto);
     this.logger.info(`Новое предложение аренды с id = ${result.id} создано`);
     return result;
   }
 
-  public async findById(offerId: string): Promise<OfferEntityDocument | null> {
+  public async findById(offerId: string): Promise<TOfferEntityDocument | null> {
     const [comments] = await this.commentModel.aggregate([
       { $match: { offerId: new mongoose.Types.ObjectId(offerId) } },
       { $count: 'count' },
@@ -53,7 +53,7 @@ export class DefaultOfferService implements IOfferService {
   public async find(
     userId: string,
     limit?: number
-  ): Promise<OfferEntityDocument[]> {
+  ): Promise<TOfferEntityDocument[]> {
     const favorites = await this.favoriteService.getFavorites(userId);
     console.log(limit);
     return this.offerModel
@@ -94,7 +94,7 @@ export class DefaultOfferService implements IOfferService {
 
   public async deleteById(
     offerId: string
-  ): Promise<OfferEntityDocument | null> {
+  ): Promise<TOfferEntityDocument | null> {
     await this.commentService.deleteByOfferId(offerId);
     //to-do Нужно решить что делать с избранными пользователя
     const result = this.offerModel.findByIdAndDelete(offerId).exec();
@@ -105,7 +105,7 @@ export class DefaultOfferService implements IOfferService {
   public async updateById(
     offerId: string,
     dto: UpdateOfferDto
-  ): Promise<OfferEntityDocument | null> {
+  ): Promise<TOfferEntityDocument | null> {
     const result = this.offerModel
       .findByIdAndUpdate(offerId, dto, { new: true })
       .populate('hostId')
@@ -118,7 +118,7 @@ export class DefaultOfferService implements IOfferService {
     cityName: TCityName,
     userId: string,
     limit?: number
-  ): Promise<OfferEntityDocument[]> {
+  ): Promise<TOfferEntityDocument[]> {
     const favorites = await this.favoriteService.getFavorites(userId);
     return this.offerModel
       .aggregate([
@@ -161,7 +161,7 @@ export class DefaultOfferService implements IOfferService {
     return (await this.offerModel.exists({ _id: documentId })) !== null;
   }
 
-  async updateRating(offerId: string): Promise<OfferEntityDocument | null> {
+  async updateRating(offerId: string): Promise<TOfferEntityDocument | null> {
     const [{ averageRating }] = await this.commentModel.aggregate<
       Record<string, number>
     >([

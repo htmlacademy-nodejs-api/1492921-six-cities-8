@@ -1,12 +1,14 @@
 import { inject, injectable } from 'inversify';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import {
   BaseController,
   HttpError,
   HttpMethod,
+  UploadFileMiddleware,
   ValidateDtoMiddleware,
+  ValidateObjectIdMiddleware,
 } from '../../libs/rest/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
@@ -17,11 +19,12 @@ import { fillDTO, generateRandomValue } from '../../helpers/index.js';
 import { UserRdo } from './rdo/user.rdo.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
+import { UploadAvatarUserRdo } from './index.js';
 
 // Временно константа для отладки, пока не научились считывать данные о пользователе из токена
 export const USER_ID = '6713ca5c6dc3e0bcd4ada1cd';
 @injectable()
-export class UserController extends BaseController {
+export default class UserController extends BaseController {
   private salt: string;
 
   constructor(
@@ -58,6 +61,18 @@ export class UserController extends BaseController {
       path: '/logout',
       method: HttpMethod.Delete,
       handler: this.logout,
+    });
+    this.addRoute({
+      path: '/:userId/avatar',
+      method: HttpMethod.Post,
+      handler: this.uploadAvatar,
+      middlewares: [
+        new ValidateObjectIdMiddleware('userId'),
+        new UploadFileMiddleware(
+          this.configService.get('UPLOAD_DIRECTORY'),
+          'avatar'
+        ),
+      ],
     });
   }
 
@@ -134,5 +149,15 @@ export class UserController extends BaseController {
 
   public logout(_req: TLoginUserRequest, _res: Response): void {
     // Код обработчика
+  }
+
+  public async uploadAvatar({ params, file }: Request, res: Response) {
+    const { userId } = params;
+    const uploadFile = { avatarUrl: file?.filename };
+    await this.userService.updateById(userId, uploadFile);
+    this.created(
+      res,
+      fillDTO(UploadAvatarUserRdo, { filepath: uploadFile.avatarUrl })
+    );
   }
 }

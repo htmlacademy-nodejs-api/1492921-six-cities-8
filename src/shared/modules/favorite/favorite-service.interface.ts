@@ -1,4 +1,4 @@
-import { OfferEntityDocument } from '../offer/index.js';
+import { TOfferEntityDocument } from '../offer/index.js';
 
 export interface IFavoriteService {
   getFavorites(userId: string): Promise<string[]>;
@@ -6,10 +6,10 @@ export interface IFavoriteService {
   addFavorite(
     userId: string,
     offerId: string
-  ): Promise<OfferEntityDocument | null>;
+  ): Promise<TOfferEntityDocument | null>;
   delFavorite(
     userId: string,
     offerId: string
-  ): Promise<OfferEntityDocument | null>;
-  find(userId: string): Promise<OfferEntityDocument[]>;
+  ): Promise<TOfferEntityDocument | null>;
+  find(userId: string): Promise<TOfferEntityDocument[]>;
 }

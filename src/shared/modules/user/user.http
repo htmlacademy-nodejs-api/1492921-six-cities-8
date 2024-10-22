@@ -20,4 +20,16 @@ Content-Type: application/json
   "password": "TestPassword"
 }
 
+### Отправить изображение
+
+POST http://localhost:5000/users/67134423715b7bd107cb0c32/avatar HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="avatar"; filename="Alex.jpg"
+Content-Type: image/png
+
+< ./static/Alex.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
 ###
