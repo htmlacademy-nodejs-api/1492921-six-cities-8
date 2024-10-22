@@ -4,10 +4,10 @@ POST http://localhost:5000/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "name": "Angella",
-  "email": "Angella",
+  "name": "Ilya",
+  "email": "Ilya@mail.ru",
   "avatarPath": "https://16.design.htmlacademy.pro/static/avatar/1.jpg",
-  "password": "TestPassword1",
+  "password": "TestPass",
   "isPro": true
 }
 
@@ -31,5 +31,11 @@ Content-Type: image/png
 
 < ./static/Alex.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+## Проверить токен пользователя
+GET http://localhost:5000/users/login HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuYW1lIjoiU2VtZW4iLCJpZCI6IjY3MGZjZmQwNzZiZDRhNWQyY2JjZThkMCIsImlhdCI6MTcyOTYwMDc2MSwiZXhwIjoxNzI5NzczNTYxfQ.OrmOMciB3Z8Is0ujPaN98RvNqvqy_ftdOV724zgaSjw
 
 ###
