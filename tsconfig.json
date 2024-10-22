@@ -21,12 +21,8 @@
     "sourceMap": true,
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
-    "types": [
-      "node",
-    ],
-    "lib": [
-      "ESNext"
-    ],
+    "types": ["node"],
+    "lib": ["ESNext"]
     /* Aliases */
     // "baseUrl": "./",
     // "paths": {
@@ -44,11 +40,10 @@
     //   ]
     // }
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.test.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.test.ts"],
+  "ts-node": {
+    "esm": true
+  },
+  "files": ["./custom.d.ts"]
 }
