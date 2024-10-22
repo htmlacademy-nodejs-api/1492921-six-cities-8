@@ -5,6 +5,7 @@ import {
   BaseController,
   DocumentExistsMiddleware,
   HttpMethod,
+  PrivateRouteMiddleware,
   TRequestQueryLimit,
   ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
@@ -45,6 +46,7 @@ export default class CommentController extends BaseController {
       handler: this.create,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateCommentDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
