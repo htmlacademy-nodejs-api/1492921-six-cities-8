@@ -7,7 +7,6 @@ export { UpdateOfferDto } from './dto/update-offer.dto.js';
 export { IOfferService } from './offer-service.interface.js';
 export { DefaultOfferService } from './default-offer.service.js';
 export { createOfferContainer } from './offer.container.js';
-export { DefaultCount } from './offer.constant.js';
 export { OfferValidationMessage } from './dto/offer-validator.messages.js';
 
 export type TOfferEntityDocument = DocumentType<OfferEntity>;

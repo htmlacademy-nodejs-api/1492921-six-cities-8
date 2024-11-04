@@ -25,7 +25,8 @@ import { Component, TCityName } from '../../types/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
-import { CreateOfferDto, DefaultCount, UpdateOfferDto } from './index.js';
+import { CreateOfferDto, UpdateOfferDto } from './index.js';
+import { DefaultCount } from '../../../const/index.js';
 
 @injectable()
 export default class OfferController extends BaseController {
@@ -103,7 +104,7 @@ export default class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const offers = await this.offerService.find(
-      tokenPayload.id,
+      tokenPayload?.id,
       query.limit === undefined ? DefaultCount.premium : Number(query.limit)
     );
     this.ok(res, fillDTO(OfferListRdo, offers));

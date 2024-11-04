@@ -84,15 +84,8 @@ paths:
       summary: Проверка состояния пользователя
       description: Сервис предоставляет ресурс для проверки состояния клиента — авторизован или нет.
       operationId: getUserAuth
-
-      parameters:
-      - in: header
-        name: X-Token
-        example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-        description: Токен пользователя
-        schema:
-          type: string
-        required: true
+      security:
+        - bearerAuth: []
 
       responses:
         200:
@@ -117,15 +110,8 @@ paths:
       summary: Завершение сеанса пользователя
       description: Сервис предоставляет ресурс для завершения пользовательского сеанса.
       operationId: userLogout
-
-      parameters:
-      - in: header
-        name: X-Token
-        description: Авторизационный токен пользователя
-        required: true
-        schema:
-          type: string
-          example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      security:
+        - bearerAuth: []
 
       responses:
         204:
@@ -144,15 +130,8 @@ paths:
       summary: Создание нового предложения по аренде
       description: Сервис предоставляет ресурс для создания новых предложений.
       operationId: offerCreate
-
-      parameters:
-      - in: header
-        name: X-Token
-        example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-        description: Токен пользователя
-        schema:
-          type: string
-        required: true
+      security:
+        - bearerAuth: []
 
       requestBody:
         description: Информация для создания нового предложения по аренде.
@@ -187,14 +166,10 @@ paths:
       summary: Получение списка предложений по аренде
       description: Сервис предоставляет список предложений по аренде (по умолчанию не больше 60).
       operationId: getOffers
+      security:
+      - bearerAuth: []
 
       parameters:
-      - in: header
-        name: X-Token
-        example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-        description: Токен пользователя
-        schema:
-          type: string
       - in: query
         name: limit
         description: Количество предложений на странице
@@ -219,7 +194,7 @@ paths:
       example: 6700f39e2b06e23d165a401a
       description: Id предложения по аренде
       schema:
-          $ref: '#/components/schemas/offerId'
+        $ref: '#/components/schemas/offerId'
       required: true
 
     patch:
@@ -228,6 +203,8 @@ paths:
       summary: Редактирование предложения по аренде
       description: Сервис предоставляет ресурс для редактирования предложения по аренде.
       operationId: offerEdit
+      security:
+      - bearerAuth: []
 
       requestBody:
         description: Информация для редактирования предложения по аренде.
@@ -268,6 +245,8 @@ paths:
       summary: Получение детальной информации о предложении по аренде
       description: Сервис предоставляет ресурс для получения детальной информации об одном предложении по аренде.
       operationId: getOffer
+      security:
+      - bearerAuth: []
 
       responses:
         201:
@@ -288,6 +267,8 @@ paths:
       summary: Удаление предложения по аренде
       description: Сервис предоставляет ресурс для удаления предложений по аренде. Клиент может удалять только свои предложения.
       operationId: offerDel
+      security:
+      - bearerAuth: []
 
       responses:
         204:
@@ -385,14 +366,8 @@ paths:
       summary: Добавление комментария
       description: Сервис предоставляет ресурс для добавления комментариев к определённому предложению по аренде.
       operationId: commentCreate
-
-      parameters:
-      - in: header
-        name: X-Token
-        example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-        description: Токен пользователя
-        schema:
-          type: string
+      security:
+        - bearerAuth: []
 
       requestBody:
         description: Информация для добавления комментария.
@@ -431,15 +406,8 @@ paths:
       summary: Список избранных предложений
       description: Сервис предоставляет ресурс для получения предложений, добавленных в избранное.
       operationId: getFavorites
-
-      parameters:
-      - in: header
-        name: X-Token
-        example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-        description: Токен пользователя
-        schema:
-          type: string
-        required: true
+      security:
+        - bearerAuth: []
 
       responses:
         200:
@@ -457,13 +425,6 @@ paths:
 
   /favorites/{offerId}:
     parameters:
-    - in: header
-      name: X-Token
-      example: b2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-      description: Токен пользователя
-      schema:
-        type: string
-      required: true
     - in: path
       name: offerId
       example: 6700f39e2b06e23d165a401a
@@ -477,6 +438,8 @@ paths:
       summary: Добавление предложения в избранное
       description: Сервис предоставляет ресурс для добавления любого предложения в список избранных предложений.
       operationId: favoriteAdd
+      security:
+        - bearerAuth: []
 
       responses:
         200:
@@ -510,6 +473,8 @@ paths:
       summary: Удаление предложения из избранного
       description: Сервис предоставляет ресурс для удаления предложения из избранного.
       operationId: favoriteDel
+      security:
+      - bearerAuth: []
 
       responses:
         204:
@@ -922,3 +887,9 @@ components:
         properties:
           message:
             example: Это предложение по аренде не находится в избранном
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

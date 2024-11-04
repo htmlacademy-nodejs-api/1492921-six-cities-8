@@ -26,16 +26,22 @@ POST http://localhost:5000/users/67134423715b7bd107cb0c32/avatar HTTP/1.1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="avatar"; filename="Alex.jpg"
+Content-Disposition: form-data; name="avatar"; filename="Alex.png"
 Content-Type: image/png
 
-< ./static/Alex.jpg
+< ../../../../mocks/Alex.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
+### Отправить изображение
+POST http://localhost:4000/users/670d16447eb5a3fa5704fca5/avatar HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-## Проверить токен пользователя
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="avatar"; filename="screen.png"
+Content-Type: image/png
+
+### Проверить токен пользователя
 GET http://localhost:5000/users/login HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuYW1lIjoiU2VtZW4iLCJpZCI6IjY3MGZjZmQwNzZiZDRhNWQyY2JjZThkMCIsImlhdCI6MTcyOTYwMDc2MSwiZXhwIjoxNzI5NzczNTYxfQ.OrmOMciB3Z8Is0ujPaN98RvNqvqy_ftdOV724zgaSjw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuYW1lIjoiU2VtZW4iLCJpZCI6IjY3MGZjZmQwNzZiZDRhNWQyY2JjZThkMCIsImlhdCI6MTczMDcwMDYxOCwiZXhwIjoxNzMwODczNDE4fQ.cLSE3KgJuB75ATTZVrL11DFNO14ZvL8xkWsiwSUiIqI
 
 ###

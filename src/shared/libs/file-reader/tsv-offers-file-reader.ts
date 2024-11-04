@@ -38,7 +38,7 @@ export class TSVOffersFileReader extends TSVFileReader {
     };
     if (!cityNames.find((name) => name === cityName)) {
       throw new Error(
-        `Файл с предложениями аренды не корректный (Город ${cityName} не найден`
+        `Файл с предложениями аренды не корректный (Город ${cityName} не найден)`
       );
     }
 

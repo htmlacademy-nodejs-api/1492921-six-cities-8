@@ -2,11 +2,14 @@
 ### Получить список избранных предложений аренды
 GET http://localhost:5000/favorites HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuYW1lIjoiU2VtZW4iLCJpZCI6IjY3MGZjZmQwNzZiZDRhNWQyY2JjZThkMCIsImlhdCI6MTczMDcwMDYxOCwiZXhwIjoxNzMwODczNDE4fQ.cLSE3KgJuB75ATTZVrL11DFNO14ZvL8xkWsiwSUiIqI
 
-### Доюавить предложение в избранное
+### Добавить предложение в избранное
 POST http://localhost:5000/favorites/67136d95914c57958cd9e6ad HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuYW1lIjoiU2VtZW4iLCJpZCI6IjY3MGZjZmQwNzZiZDRhNWQyY2JjZThkMCIsImlhdCI6MTczMDcwMDYxOCwiZXhwIjoxNzMwODczNDE4fQ.cLSE3KgJuB75ATTZVrL11DFNO14ZvL8xkWsiwSUiIqI
 
 ### Удалить предложение из избранного
 DELETE http://localhost:5000/favorites/67136d95914c57958cd9e6ad HTTP/1.1
-Content-Type: application/json###
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuYW1lIjoiU2VtZW4iLCJpZCI6IjY3MGZjZmQwNzZiZDRhNWQyY2JjZThkMCIsImlhdCI6MTczMDcwMDYxOCwiZXhwIjoxNzMwODczNDE4fQ.cLSE3KgJuB75ATTZVrL11DFNO14ZvL8xkWsiwSUiIqI

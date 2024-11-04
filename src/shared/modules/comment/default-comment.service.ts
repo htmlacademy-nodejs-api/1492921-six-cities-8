@@ -8,7 +8,7 @@ import {
   ICommentService,
   TCommentEntityDocument,
 } from './index.js';
-import { DefaultCount } from '../offer/index.js';
+import { DefaultCount } from '../../../const/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 
 @injectable()

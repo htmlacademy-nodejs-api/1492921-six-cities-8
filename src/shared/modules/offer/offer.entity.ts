@@ -4,6 +4,7 @@ import {
   modelOptions,
   prop,
   Ref,
+  Severity,
 } from '@typegoose/typegoose';
 
 import { TCity, TOfferGoods, TOfferType, TPoint } from '../../types/index.js';
@@ -17,6 +18,9 @@ export interface OfferEntity extends defaultClasses.Base {}
   schemaOptions: {
     collection: 'offers',
     timestamps: true,
+  },
+  options: {
+    allowMixed: Severity.ALLOW,
   },
 })
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging

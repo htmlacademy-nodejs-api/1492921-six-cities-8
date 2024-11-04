@@ -55,7 +55,7 @@ export default class FavoriteController extends BaseController {
   }
 
   public async index({ tokenPayload }: Request, res: Response): Promise<void> {
-    const favorites = await this.favoriteService.find(tokenPayload.id);
+    const favorites = await this.favoriteService.find(tokenPayload?.id);
     this.ok(res, fillDTO(OfferListRdo, favorites));
   }
 

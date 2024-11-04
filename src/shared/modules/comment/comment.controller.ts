@@ -14,9 +14,10 @@ import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { CommentRdo, CreateCommentDto, ICommentService } from './index.js';
-import { DefaultCount, IOfferService } from '../offer/index.js';
+import { IOfferService } from '../offer/index.js';
 import { TParamOfferId } from '../offer/type/param-offer.type.js';
 import { TCreateCommentRequest } from './comment-request.type.js';
+import { DefaultCount } from '../../../const/index.js';
 
 @injectable()
 export default class CommentController extends BaseController {
