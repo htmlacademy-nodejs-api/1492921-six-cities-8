@@ -1,4 +1,4 @@
-import { EMPTY_AVATAR, UserFieldsInLine } from '../../../const/index.js';
+import { UserFieldsInLine } from '../../../const/index.js';
 import { validateEmail } from '../../helpers/index.js';
 import { TSVFileReader } from './tsv-file-reader.js';
 
@@ -27,7 +27,7 @@ export class TSVUsersFileReader extends TSVFileReader {
     return {
       name,
       email,
-      avatarUrl: avatarUrl ?? EMPTY_AVATAR,
+      avatarUrl: avatarUrl, // ?? EMPTY_AVATAR,
       password: '',
       isPro: isPro === 'True',
     } as T;

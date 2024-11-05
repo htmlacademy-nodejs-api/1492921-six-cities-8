@@ -1,7 +1,7 @@
 # Комментарии
 ### Просмотр комментариев
 
-GET http://localhost:5000/comments/6714a1c5e1722f45ef0db297 HTTP/1.1
+GET http://localhost:5000/comments/672a6b619a1cfd74a0d880e7 HTTP/1.1
 Content-Type: application/json
 
 ### Добавить комментарий

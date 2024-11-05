@@ -1,8 +1,8 @@
 import { IsLatitude, IsLongitude } from 'class-validator';
 import { OfferValidationMessage } from './offer-validator.messages.js';
-import { TPoint } from '../../../types/offer.type.js';
+//import { TPoint } from '../../../types/offer.type.js';
 
-export class PointDto implements TPoint {
+export class PointDto {
   @IsLatitude({ message: OfferValidationMessage.location.invalidLatitude })
   public latitude: number;
 

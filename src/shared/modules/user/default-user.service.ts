@@ -9,6 +9,7 @@ import {
   UpdateUserDto,
   UserEntityDocument,
   UserEntity,
+  DEFAULT_AVATAR_FILE_NAME,
 } from './index.js';
 
 @injectable()
@@ -23,7 +24,10 @@ export class DefaultUserService implements IUserService {
     dto: CreateUserDto,
     salt: string
   ): Promise<UserEntityDocument> {
-    const user = new UserEntity(dto);
+    const user = new UserEntity({
+      ...dto,
+      avatarUrl: DEFAULT_AVATAR_FILE_NAME,
+    });
     user.setPassword(dto.password, salt);
 
     const result = await this.userModel.create(user);

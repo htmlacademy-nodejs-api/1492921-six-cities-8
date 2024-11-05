@@ -233,6 +233,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/tokenNotCorrect'
+        403:
+          description: У пользователя нет прав на изменение предложения по аренде
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/accessDenied'
         404:
           description: Предложение по аренде не найдено
           content:
@@ -273,6 +279,24 @@ paths:
       responses:
         204:
           description: Предложение по аренде удалено
+        401:
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenNotCorrect'
+        403:
+          description: У пользователя нет прав на удаление предложения по аренде
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/accessDenied'
+        404:
+          description: Предложение по аренде не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundError'
 
   /premium/{cityName}:
     get:
@@ -849,6 +873,16 @@ components:
                 "message": "Количество комнат должно быть не менее 1, но не более 8"
               }
             ]
+
+    accessDenied:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/commonError'
+        - type: object
+          properties:
+            error:
+              type: string
+              example: Не достаточно прав для выполнения действия
 
     commentError:
       allOf:

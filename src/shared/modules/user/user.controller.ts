@@ -6,6 +6,7 @@ import {
   BaseController,
   HttpError,
   HttpMethod,
+  // PrivateRouteMiddleware,
   UploadFileMiddleware,
   ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
@@ -60,6 +61,7 @@ export default class UserController extends BaseController {
       path: '/login',
       method: HttpMethod.Get,
       handler: this.checkAuthenticate,
+      // middlewares: [new PrivateRouteMiddleware()],
     });
     this.addRoute({
       path: '/logout',
@@ -67,7 +69,7 @@ export default class UserController extends BaseController {
       handler: this.logout,
     });
     this.addRoute({
-      path: '/:userId/avatar',
+      path: '/avatar/:userId',
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
@@ -125,17 +127,19 @@ export default class UserController extends BaseController {
 
     const user = await this.authService.verify(body);
     const token = await this.authService.authenticate(user);
-    const responseData = fillDTO(LoggedUserRdo, {
-      email: user.email,
-      token,
-    });
-    this.ok(res, responseData);
+    const responseData = fillDTO(LoggedUserRdo, user);
+    this.ok(res, Object.assign(responseData, { token }));
   }
 
-  public async checkAuthenticate(
-    { tokenPayload: { email } }: Request,
-    res: Response
-  ) {
+  public async checkAuthenticate({ tokenPayload }: Request, res: Response) {
+    if (!tokenPayload) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+    const { email } = tokenPayload;
     const foundedUser = await this.userService.findByEmail(email);
 
     if (!foundedUser) {
@@ -149,8 +153,12 @@ export default class UserController extends BaseController {
     this.ok(res, fillDTO(LoggedUserRdo, foundedUser));
   }
 
-  public logout(_req: TLoginUserRequest, _res: Response): void {
-    // Код обработчика
+  public async logout(req: TLoginUserRequest, res: Response): Promise<void> {
+    const {
+      tokenPayload: { email },
+    } = req;
+    await this.userService.findByEmail(email);
+    this.noContent(res, {});
   }
 
   public async uploadAvatar({ params, file }: Request, res: Response) {

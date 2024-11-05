@@ -7,7 +7,6 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
-  IsMongoId,
   IsObject,
   IsString,
   IsUrl,
@@ -113,7 +112,6 @@ export class UpdateOfferDto {
   })
   public goods?: TOfferGoods[];
 
-  @IsMongoId({ message: OfferValidationMessage.hostId.invalidId })
   public hostId?: string;
 
   @IsObject({ message: OfferValidationMessage.location.invalidFormat })

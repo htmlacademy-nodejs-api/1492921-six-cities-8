@@ -1,4 +1,6 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
+import { ValidationError } from 'class-validator';
+import { ApplicationError, TValidationErrorField } from '../libs/rest/index.js';
 
 const generateRandomValue = (min: number, max: number, numAfterDigit = 0) =>
   +(Math.random() * (max - min) + min).toFixed(numAfterDigit);
@@ -20,16 +22,31 @@ function fillDTO<T, V>(someDto: ClassConstructor<T>, plainObject: V) {
   });
 }
 
-function createErrorObject(message: string) {
-  return {
-    error: message,
-  };
+function createErrorObject(
+  errorType: ApplicationError,
+  error: string,
+  details: TValidationErrorField[] = []
+) {
+  return { errorType, error, details };
 }
 
 const validateEmail = (email: string): boolean => {
   const regExpEmail: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   return regExpEmail.test(email);
 };
+function reduceValidationErrors(
+  errors: ValidationError[]
+): TValidationErrorField[] {
+  return errors.map(({ property, value, constraints }) => ({
+    property,
+    value,
+    messages: constraints ? Object.values(constraints) : [],
+  }));
+}
+
+function getFullServerPath(host: string, port: number) {
+  return `http://${host}:${port}`;
+}
 
 export {
   generateRandomValue,
@@ -39,4 +56,6 @@ export {
   fillDTO,
   createErrorObject,
   validateEmail,
+  reduceValidationErrors,
+  getFullServerPath,
 };
