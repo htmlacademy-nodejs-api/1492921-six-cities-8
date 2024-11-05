@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -17,26 +18,35 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import {
-  TCity,
-  TOfferGoods,
-  TOfferType,
-  TPoint,
-} from '../../../types/index.js';
-//import { CityDto } from './city-dto.js';
+import { TOfferGoods, TOfferType } from '../../../types/index.js';
 import { OfferValidationMessage } from './offer-validator.messages.js';
-import { OFFER_GOODS, OFFER_TYPES } from '../../../../const/data.js';
+import { CityDto } from './city.dto.js';
+import {
+  OFFER_GOODS,
+  OFFER_TYPES,
+  BedroomsLimit,
+  DescriptionLength,
+  ImagesLimit,
+  MaxAdultsLimit,
+  PriceLimit,
+  TitleLength,
+} from '../../../../const/index.js';
+import { PointDto } from './point.dto.js';
 
 export class CreateOfferDto {
-  @MinLength(10, { message: OfferValidationMessage.title.minLength })
-  @MaxLength(100, { message: OfferValidationMessage.title.maxLength })
+  @MinLength(TitleLength.min, {
+    message: OfferValidationMessage.title.minLength,
+  })
+  @MaxLength(TitleLength.max, {
+    message: OfferValidationMessage.title.maxLength,
+  })
   @IsString({ message: OfferValidationMessage.title.invalidFormat })
   public title: string;
 
-  @MinLength(20, {
+  @MinLength(DescriptionLength.min, {
     message: OfferValidationMessage.description.minLength,
   })
-  @MaxLength(1024, {
+  @MaxLength(DescriptionLength.max, {
     message: OfferValidationMessage.description.maxLength,
   })
   public description: string;
@@ -44,14 +54,11 @@ export class CreateOfferDto {
   @IsDateString({}, { message: OfferValidationMessage.date.invalidFormat })
   public date: Date;
 
+  @IsObject({ message: OfferValidationMessage.city.invalidFormat })
   @ValidateNested()
-  public city: TCity;
-  // @Type(() => CityDto)
-  // public city: CityDto;
+  @Type(() => CityDto)
+  public city: CityDto;
 
-  // @IsString({
-  //   message: OfferValidationMessage.previewImage.invalidFormat,
-  // })
   @IsUrl(
     { protocols: ['http', 'https'] },
     { message: OfferValidationMessage.previewImage.invalidFormat }
@@ -59,8 +66,12 @@ export class CreateOfferDto {
   public previewImage: string;
 
   @IsArray({ message: OfferValidationMessage.images.invalidFormat })
-  @ArrayMinSize(6, { message: OfferValidationMessage.images.length })
-  @ArrayMaxSize(6, { message: OfferValidationMessage.images.length })
+  @ArrayMinSize(ImagesLimit.min, {
+    message: OfferValidationMessage.images.length,
+  })
+  @ArrayMaxSize(ImagesLimit.max, {
+    message: OfferValidationMessage.images.length,
+  })
   @IsUrl(
     { protocols: ['http', 'https'] },
     {
@@ -77,18 +88,22 @@ export class CreateOfferDto {
   public type: TOfferType;
 
   @IsInt({ message: OfferValidationMessage.bedrooms.invalidFormat })
-  @Min(1, { message: OfferValidationMessage.bedrooms.minValue })
-  @Max(8, { message: OfferValidationMessage.bedrooms.maxValue })
+  @Min(BedroomsLimit.min, { message: OfferValidationMessage.bedrooms.minValue })
+  @Max(BedroomsLimit.max, { message: OfferValidationMessage.bedrooms.maxValue })
   public bedrooms: number;
 
   @IsInt({ message: OfferValidationMessage.maxAdults.invalidFormat })
-  @Min(1, { message: OfferValidationMessage.maxAdults.minValue })
-  @Max(10, { message: OfferValidationMessage.maxAdults.maxValue })
+  @Min(MaxAdultsLimit.min, {
+    message: OfferValidationMessage.maxAdults.minValue,
+  })
+  @Max(MaxAdultsLimit.max, {
+    message: OfferValidationMessage.maxAdults.maxValue,
+  })
   public maxAdults: number;
 
   @IsInt({ message: OfferValidationMessage.price.invalidFormat })
-  @Min(100, { message: OfferValidationMessage.price.minValue })
-  @Max(100000, { message: OfferValidationMessage.price.maxValue })
+  @Min(PriceLimit.min, { message: OfferValidationMessage.price.minValue })
+  @Max(PriceLimit.max, { message: OfferValidationMessage.price.maxValue })
   public price: number;
 
   @IsArray({ message: OfferValidationMessage.goods.invalidFormat })
@@ -102,5 +117,7 @@ export class CreateOfferDto {
   public hostId: string;
 
   @IsObject({ message: OfferValidationMessage.location.invalidFormat })
-  public location: TPoint;
+  @ValidateNested()
+  @Type(() => PointDto)
+  public location: PointDto;
 }

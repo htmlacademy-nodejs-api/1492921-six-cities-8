@@ -20,6 +20,8 @@ import { UserRdo } from './rdo/user.rdo.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
 import { UploadAvatarUserRdo } from './index.js';
+import { IAuthService } from '../auth/index.js';
+import { LoggedUserRdo } from './rdo/logged-user.rdo.js';
 
 // Временно константа для отладки, пока не научились считывать данные о пользователе из токена
 export const USER_ID = '6713ca5c6dc3e0bcd4ada1cd';
@@ -33,7 +35,9 @@ export default class UserController extends BaseController {
     @inject(Component.UserService)
     private readonly userService: IUserService,
     @inject(Component.Config)
-    private readonly configService: IConfig<TRestSchema>
+    private readonly configService: IConfig<TRestSchema>,
+    @inject(Component.AuthService)
+    private readonly authService: IAuthService
   ) {
     super(logger);
     this.salt = this.configService.get('SALT');
@@ -55,7 +59,7 @@ export default class UserController extends BaseController {
     this.addRoute({
       path: '/login',
       method: HttpMethod.Get,
-      handler: this.getState,
+      handler: this.checkAuthenticate,
     });
     this.addRoute({
       path: '/logout',
@@ -119,32 +123,30 @@ export default class UserController extends BaseController {
       );
     }
 
-    const user = await this.userService.findByEmail(body.email);
-
-    if (!user) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        `Пользователь с email ${body.email} не найден.`,
-        'UserController'
-      );
-    }
-
-    if (!user.isValidPassword(body.password, this.salt)) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        'Пользователь не авторизован',
-        'UserController'
-      );
-    }
-
-    this.ok(res, user);
+    const user = await this.authService.verify(body);
+    const token = await this.authService.authenticate(user);
+    const responseData = fillDTO(LoggedUserRdo, {
+      email: user.email,
+      token,
+    });
+    this.ok(res, responseData);
   }
 
-  public async getState(
-    _req: TLoginUserRequest,
-    _res: Response
-  ): Promise<void> {
-    // Код обработчика
+  public async checkAuthenticate(
+    { tokenPayload: { email } }: Request,
+    res: Response
+  ) {
+    const foundedUser = await this.userService.findByEmail(email);
+
+    if (!foundedUser) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    this.ok(res, fillDTO(LoggedUserRdo, foundedUser));
   }
 
   public logout(_req: TLoginUserRequest, _res: Response): void {

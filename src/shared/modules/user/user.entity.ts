@@ -3,6 +3,7 @@ import {
   getModelForClass,
   prop,
   modelOptions,
+  Severity,
 } from '@typegoose/typegoose';
 import { TUser } from '../../types/index.js';
 import { EMPTY_AVATAR } from '../../../const/index.js';
@@ -15,6 +16,9 @@ export interface UserEntity extends defaultClasses.Base {}
   schemaOptions: {
     collection: 'users',
     timestamps: true,
+  },
+  options: {
+    allowMixed: Severity.ALLOW,
   },
 })
 

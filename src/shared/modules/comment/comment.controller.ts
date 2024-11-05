@@ -5,6 +5,7 @@ import {
   BaseController,
   DocumentExistsMiddleware,
   HttpMethod,
+  PrivateRouteMiddleware,
   TRequestQueryLimit,
   ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
@@ -13,10 +14,10 @@ import { Component } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { CommentRdo, CreateCommentDto, ICommentService } from './index.js';
-import { DefaultCount, IOfferService } from '../offer/index.js';
+import { IOfferService } from '../offer/index.js';
 import { TParamOfferId } from '../offer/type/param-offer.type.js';
-import { USER_ID } from '../user/user.controller.js';
 import { TCreateCommentRequest } from './comment-request.type.js';
+import { DefaultCount } from '../../../const/index.js';
 
 @injectable()
 export default class CommentController extends BaseController {
@@ -46,6 +47,7 @@ export default class CommentController extends BaseController {
       handler: this.create,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateCommentDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
@@ -60,28 +62,24 @@ export default class CommentController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    //if (await this.offerController.checkOffer(offerId)) {
     const comments = await this.commentService.findByOfferId(
       offerId,
       query.limit === undefined ? DefaultCount.comment : Number(query.limit)
     );
     this.ok(res, fillDTO(CommentRdo, comments));
-    //}
   }
 
   public async create(
-    { params, body }: TCreateCommentRequest,
+    { params, body, tokenPayload }: TCreateCommentRequest,
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    //if (await this.offerController.checkOffer(offerId)) {
     const comment = await this.commentService.create({
       ...body,
       offerId: offerId,
-      userId: USER_ID,
+      userId: tokenPayload.id,
     });
     await this.offerService.updateRating(offerId);
     this.created(res, fillDTO(CommentRdo, comment));
-    //}
   }
 }

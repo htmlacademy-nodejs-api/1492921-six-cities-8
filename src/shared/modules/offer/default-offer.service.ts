@@ -6,12 +6,12 @@ import { Component, SortType, TCityName } from '../../types/index.js';
 import { ILogger } from '../../libs/logger/index.js';
 import {
   CreateOfferDto,
-  DefaultCount,
   IOfferService,
   OfferEntity,
   TOfferEntityDocument,
   UpdateOfferDto,
 } from './index.js';
+import { DefaultCount } from '../../../const/index.js';
 import { CommentEntity, ICommentService } from '../comment/index.js';
 import { IFavoriteService } from '../favorite/favorite-service.interface.js';
 
@@ -35,7 +35,10 @@ export class DefaultOfferService implements IOfferService {
     return result;
   }
 
-  public async findById(offerId: string): Promise<TOfferEntityDocument | null> {
+  public async findById(
+    offerId: string,
+    userId: string
+  ): Promise<TOfferEntityDocument | null> {
     const [comments] = await this.commentModel.aggregate([
       { $match: { offerId: new mongoose.Types.ObjectId(offerId) } },
       { $count: 'count' },
@@ -46,6 +49,8 @@ export class DefaultOfferService implements IOfferService {
       .exec();
     if (result) {
       result.commentsCount = comments?.count ?? 0;
+      const favorites = await this.favoriteService.getFavorites(userId);
+      result.isFavorite = favorites.includes(offerId);
     }
     return result;
   }
@@ -55,7 +60,6 @@ export class DefaultOfferService implements IOfferService {
     limit?: number
   ): Promise<TOfferEntityDocument[]> {
     const favorites = await this.favoriteService.getFavorites(userId);
-    console.log(limit);
     return this.offerModel
       .aggregate([
         {
@@ -169,7 +173,6 @@ export class DefaultOfferService implements IOfferService {
       { $group: { _id: null, averageRating: { $avg: '$rating' } } },
     ]);
     const offerRating = (averageRating ?? 0).toFixed(1);
-    console.log(offerRating);
     return this.offerModel
       .findByIdAndUpdate(offerId, { rating: offerRating }, { new: true })
       .populate('hostId')
