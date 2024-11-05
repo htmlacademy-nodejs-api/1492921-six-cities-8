@@ -32,9 +32,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuY
       "Laptop friendly",
       "Breakfast"
    ],
-   "hostId":"670fcfd076bd4a5d2cbce8d0",
    "location":{
-      "latitude":95,
+      "latitude":60,
       "longitude":10.588797
    }
 }
@@ -66,7 +65,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlbWVuQG1haWwucnUiLCJuY
   "maxAdults": 4,
   "price": 10500,
   "goods": [
-    "Laptop friendly",
     "Breakfast",
     "Towels",
     "Fridge"

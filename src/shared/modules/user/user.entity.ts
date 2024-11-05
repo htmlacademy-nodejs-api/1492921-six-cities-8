@@ -6,7 +6,6 @@ import {
   Severity,
 } from '@typegoose/typegoose';
 import { TUser } from '../../types/index.js';
-import { EMPTY_AVATAR } from '../../../const/index.js';
 import { createSHA256 } from '../../helpers/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -30,7 +29,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements TUser {
   @prop({ unique: true, required: true })
   public email: string;
 
-  @prop({ required: false, default: EMPTY_AVATAR })
+  @prop({ required: false, default: '' })
   public avatarUrl?: string;
 
   @prop({ required: true, default: '' })

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { inject, injectable } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
 
@@ -27,6 +28,7 @@ import { cityNames } from '../../../const/data.js';
 import { OfferListRdo } from './rdo/offer-list.rdo.js';
 import { CreateOfferDto, UpdateOfferDto } from './index.js';
 import { DefaultCount } from '../../../const/index.js';
+import { AppRoute } from '../../../rest/index.js';
 
 @injectable()
 export default class OfferController extends BaseController {
@@ -39,15 +41,16 @@ export default class OfferController extends BaseController {
     super(logger);
 
     this.logger.info('Регистрация маршрутов для OfferController ...');
+    this.logger.info(AppRoute.Offers);
 
     this.addRoute({
-      path: '/offers',
+      path: AppRoute.Offers,
       method: HttpMethod.Get,
       handler: this.index,
     });
 
     this.addRoute({
-      path: '/offers',
+      path: AppRoute.Offers,
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
@@ -57,7 +60,7 @@ export default class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/offers/:offerId',
+      path: AppRoute.Offer,
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
@@ -69,7 +72,7 @@ export default class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/offers/:offerId',
+      path: AppRoute.Offer,
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
@@ -80,7 +83,7 @@ export default class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/offers/:offerId',
+      path: AppRoute.Offer,
       method: HttpMethod.Get,
       handler: this.show,
       middlewares: [
@@ -90,10 +93,22 @@ export default class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/premium/:cityName',
+      path: AppRoute.Premium,
       method: HttpMethod.Get,
       handler: this.findPremium,
     });
+  }
+
+  private async checkRights(offerId: string, userId: string): Promise<void> {
+    const offer = await this.offerService.findById(offerId, userId);
+
+    if (!offer?.hostId._id.equals(new Types.ObjectId(userId))) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        'Не достаточно прав для выполнения действия',
+        'OfferController'
+      );
+    }
   }
 
   public async index(
@@ -114,31 +129,10 @@ export default class OfferController extends BaseController {
     { body, tokenPayload }: TCreateOfferRequest,
     res: Response
   ): Promise<void> {
-    if (
-      !body.title ||
-      !body.description ||
-      !body.date ||
-      !body.city ||
-      !body.previewImage ||
-      !body.images ||
-      body.isPremium === undefined ||
-      !body.type ||
-      !body.bedrooms ||
-      !body.maxAdults ||
-      !body.price ||
-      !body.goods ||
-      !body.hostId ||
-      !body.location
-    ) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Ошибка тела запроса',
-        'OfferController'
-      );
-    }
     const result = await this.offerService.create({
       ...body,
       hostId: tokenPayload.id,
+      date: body.date ?? new Date().toISOString(),
     });
     const offer = await this.offerService.findById(result.id, tokenPayload.id);
     this.created(res, fillDTO(OfferRdo, offer));
@@ -149,29 +143,7 @@ export default class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-
-    if (
-      !body.title &&
-      !body.description &&
-      //!body.date &&
-      !body.city &&
-      !body.previewImage &&
-      !body.images &&
-      !body.isPremium &&
-      !body.type &&
-      !body.bedrooms &&
-      !body.maxAdults &&
-      !body.price &&
-      !body.goods &&
-      //!body.hostId &&
-      !body.location
-    ) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Ошибка тела запроса',
-        'OfferController'
-      );
-    }
+    await this.checkRights(offerId, tokenPayload.id);
     const result = await this.offerService.updateById(offerId, body);
     if (result) {
       const offer = await this.offerService.findById(offerId, tokenPayload.id);
@@ -180,12 +152,13 @@ export default class OfferController extends BaseController {
   }
 
   public async delete(
-    { params }: Request<TParamOfferId>,
+    { params, tokenPayload }: Request<TParamOfferId>,
     res: Response
   ): Promise<void> {
     const { offerId } = params;
+    await this.checkRights(offerId, tokenPayload.id);
     await this.offerService.deleteById(offerId);
-    this.ok(res, null);
+    this.noContent(res, null);
   }
 
   public async show(
@@ -193,7 +166,7 @@ export default class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { offerId } = params;
-    const offer = await this.offerService.findById(offerId, tokenPayload.id);
+    const offer = await this.offerService.findById(offerId, tokenPayload?.id);
     this.ok(res, fillDTO(OfferRdo, offer));
   }
 
@@ -217,7 +190,7 @@ export default class OfferController extends BaseController {
     }
     const offers = await this.offerService.findPremium(
       cityName as TCityName,
-      tokenPayload.id,
+      tokenPayload?.id,
       query.limit === undefined ? DefaultCount.premium : Number(query.limit)
     );
     this.ok(res, fillDTO(OfferListRdo, offers));

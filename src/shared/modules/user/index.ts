@@ -14,5 +14,6 @@ export { UploadAvatarUserRdo } from './rdo/upload-avatar-user.rdo.js';
 export { DefaultUserService } from './default-user.service.js';
 export { createUserContainer } from './user.container.js';
 export { IUserService } from './user-service.interface.js';
+export { DEFAULT_AVATAR_FILE_NAME } from './user.constant.js';
 
 export type UserEntityDocument = DocumentType<UserEntity>;

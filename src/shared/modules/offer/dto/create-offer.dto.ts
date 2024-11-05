@@ -7,8 +7,8 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
-  IsMongoId,
   IsObject,
+  IsOptional,
   IsString,
   IsUrl,
   Max,
@@ -52,6 +52,7 @@ export class CreateOfferDto {
   public description: string;
 
   @IsDateString({}, { message: OfferValidationMessage.date.invalidFormat })
+  @IsOptional()
   public date: Date;
 
   @IsObject({ message: OfferValidationMessage.city.invalidFormat })
@@ -113,7 +114,6 @@ export class CreateOfferDto {
   })
   public goods: TOfferGoods[];
 
-  @IsMongoId({ message: OfferValidationMessage.hostId.invalidId })
   public hostId: string;
 
   @IsObject({ message: OfferValidationMessage.location.invalidFormat })

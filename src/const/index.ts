@@ -4,7 +4,6 @@ export {
   OfferFieldsInLine,
 } from './formats.js';
 export {
-  EMPTY_AVATAR,
   Cities,
   cityNames,
   OFFER_TYPES,

@@ -1,5 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import { UserRdo } from '../../user/index.js';
+import { Matches } from 'class-validator';
 
 export class CommentRdo {
   @Expose()
@@ -16,5 +17,6 @@ export class CommentRdo {
   public comment: string;
 
   @Expose()
+  @Matches(/^\d+(\.0)?$/)
   public rating: number;
 }
