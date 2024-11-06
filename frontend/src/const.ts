@@ -77,6 +77,7 @@ export enum StoreSlice {
 }
 
 export enum HttpCode {
+  BadRequest = 400,
   NotFound = 404,
   NoAuth = 401,
   Created = 201,

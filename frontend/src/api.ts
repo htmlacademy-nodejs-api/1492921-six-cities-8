@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
-import { Token } from './utils';
+import { handleAxiosError, Token } from './utils';
 
 const BACKEND_URL = 'http://localhost:5000';
 const REQUEST_TIMEOUT = 5000;
@@ -12,24 +12,20 @@ export const createAPI = (): AxiosInstance => {
     timeout: REQUEST_TIMEOUT,
   });
 
-  api.interceptors.request.use(
-    (config: AxiosRequestConfig) => {
-      const token = Token.get();
+  api.interceptors.request.use((config: AxiosRequestConfig) => {
+    const token = Token.get();
 
-      if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      return config;
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
-  );
+
+    return config;
+  });
 
   api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-      toast.dismiss();
-      toast.warn(error.response ? error.response.data.error : error.message);
-
+      handleAxiosError(error);
       return Promise.reject(error);
     }
   );
