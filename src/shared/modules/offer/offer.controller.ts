@@ -120,7 +120,7 @@ export default class OfferController extends BaseController {
   ): Promise<void> {
     const offers = await this.offerService.find(
       tokenPayload?.id,
-      query.limit === undefined ? DefaultCount.premium : Number(query.limit)
+      query.limit === undefined ? DefaultCount.offer : Number(query.limit)
     );
     this.ok(res, fillDTO(OfferListRdo, offers));
   }

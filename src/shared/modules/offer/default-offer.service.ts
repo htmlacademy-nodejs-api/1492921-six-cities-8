@@ -100,7 +100,6 @@ export class DefaultOfferService implements IOfferService {
     offerId: string
   ): Promise<TOfferEntityDocument | null> {
     await this.commentService.deleteByOfferId(offerId);
-    //to-do Нужно решить что делать с избранными пользователя
     const result = this.offerModel.findByIdAndDelete(offerId).exec();
     this.logger.info(`Предложение аренды с id = ${offerId} удалено`);
     return result;

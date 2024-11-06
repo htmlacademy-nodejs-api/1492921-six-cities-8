@@ -10,7 +10,6 @@ type TPoint = {
 };
 
 type TOffer = {
-  //id: string;
   title: string;
   description: string;
   date: Date;

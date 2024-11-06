@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
-import { toast } from 'react-toastify';
 
 import { handleAxiosError, Token } from './utils';
 
