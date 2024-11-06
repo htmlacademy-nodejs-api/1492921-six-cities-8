@@ -6,7 +6,6 @@ import {
   BaseController,
   HttpError,
   HttpMethod,
-  // PrivateRouteMiddleware,
   UploadFileMiddleware,
   ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
@@ -16,7 +15,7 @@ import { Component } from '../../types/index.js';
 import { TCreateUserRequest, TLoginUserRequest } from './user-request.type.js';
 import { IUserService } from './user-service.interface.js';
 import { IConfig, TRestSchema } from '../../libs/config/index.js';
-import { fillDTO, generateRandomValue } from '../../helpers/index.js';
+import { fillDTO } from '../../helpers/index.js';
 import { UserRdo } from './rdo/user.rdo.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
@@ -24,8 +23,6 @@ import { UploadAvatarUserRdo } from './index.js';
 import { IAuthService } from '../auth/index.js';
 import { LoggedUserRdo } from './rdo/logged-user.rdo.js';
 
-// Временно константа для отладки, пока не научились считывать данные о пользователе из токена
-export const USER_ID = '6713ca5c6dc3e0bcd4ada1cd';
 @injectable()
 export default class UserController extends BaseController {
   private salt: string;
@@ -61,7 +58,6 @@ export default class UserController extends BaseController {
       path: '/login',
       method: HttpMethod.Get,
       handler: this.checkAuthenticate,
-      // middlewares: [new PrivateRouteMiddleware()],
     });
     this.addRoute({
       path: '/logout',
@@ -80,19 +76,6 @@ export default class UserController extends BaseController {
         ),
       ],
     });
-  }
-
-  public checkUser(_token: string): boolean {
-    // Пока заглушка
-    if (generateRandomValue(1, 2) === 1) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        'Пользователь не авторизован',
-        'UserController'
-      );
-      return false;
-    }
-    return true;
   }
 
   public async create(
