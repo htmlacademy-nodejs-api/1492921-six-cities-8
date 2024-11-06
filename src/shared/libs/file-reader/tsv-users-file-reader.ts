@@ -19,17 +19,17 @@ export class TSVUsersFileReader extends TSVFileReader {
         `Файл с пользователями не корректный (email: ${email} недопустим).`
       );
     }
-    if ('True~False~'.includes(`${isPro}~`)) {
+    if (!'true~false~'.includes(`${isPro}~`)) {
       throw new Error(
-        'Файл с пользователями не корректный (3-е поле isPro должно быть True или False).'
+        `Файл с пользователями не корректный (3-е поле isPro = ${isPro} должно быть true или false).`
       );
     }
     return {
       name,
       email,
-      avatarUrl: avatarUrl, // ?? EMPTY_AVATAR,
+      avatarUrl: avatarUrl,
       password: '',
-      isPro: isPro === 'True',
+      isPro: isPro === 'true',
     } as T;
   }
 }

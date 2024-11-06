@@ -13,7 +13,9 @@ const ImagesLimit: TRange = { min: 6, max: 6 } as const;
 const PriceLimit: TRange = { min: 100, max: 100000 } as const;
 const BedroomsLimit: TRange = { min: 1, max: 8 } as const;
 const MaxAdultsLimit: TRange = { min: 1, max: 10 } as const;
-const RatingLimit: TRange = { min: 1, max: 5 } as const;
+const RatingLimit: TRange = { min: 1, max: 5, precision: 1 } as const;
+const CityOffsetLimit: TRange = { min: 0, max: 0.009, precision: 6 } as const;
+const WeekDaysLimit: TRange = { min: 1, max: 7 } as const;
 
 export {
   TitleLength,
@@ -25,4 +27,6 @@ export {
   BedroomsLimit,
   MaxAdultsLimit,
   RatingLimit,
+  CityOffsetLimit,
+  WeekDaysLimit,
 };
